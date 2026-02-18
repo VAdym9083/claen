@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Cleaning Price Calculator</title>
+  <style>
+    :root{--b:#111;--g:#666;--bd:#e7e7e7;--bg:#fafafa;--card:#fff}
+    body{font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;margin:0;color:var(--b);background:var(--bg)}
+    .wrap{max-width:980px;margin:0 auto;padding:24px}
+    .hero{display:grid;gap:14px;padding:22px;border:1px solid var(--bd);border-radius:16px;background:var(--card)}
+    .hero h1{margin:0;font-size:28px;line-height:1.1}
+    .hero p{margin:0;color:var(--g)}
+    .grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:16px}
+    @media(min-width:900px){.grid{grid-template-columns:1.1fr .9fr}}
+    .card{padding:18px;border:1px solid var(--bd);border-radius:16px;background:var(--card)}
+    label{display:block;margin:10px 0 6px;font-size:14px}
+    input,select,textarea{width:100%;padding:12px;border:1px solid var(--bd);border-radius:12px;font-size:15px}
+    button{width:100%;padding:12px 14px;border:0;border-radius:12px;font-size:16px;cursor:pointer}
+    .btn{margin-top:12px}
+    .muted{color:var(--g);font-size:13px}
+    .result{margin-top:12px;padding:14px;border-radius:14px;background:#f4f4f4}
+    .price{font-size:22px;font-weight:700;margin:0}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .row a{display:inline-block;text-decoration:none;padding:10px 12px;border-radius:12px;border:1px solid var(--bd);background:#fff;color:#111}
+    .row a.primary{border:0;background:#111;color:#fff}
+    .list{margin:0;padding-left:18px}
+    .hr{height:1px;background:var(--bd);margin:16px 0}
+    .small{font-size:12px;color:var(--g)}
+  </style>
+  <script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "vj9i1sfm9b");
+</script>
+
+</head>
+
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>Cleaning Price Calculator</h1>
+      <p>Enter the details, get an estimated price, and view the price list right away.</p>
+      <p class="muted">Tip: place “Get an exact quote in 2 minutes” under the calculator to capture leads.</p>
+    </section>
+
+    <div class="grid">
+      <section class="card" id="calculator">
+        <h2 style="margin:0 0 8px">Estimate</h2>
+        <div class="muted">Fill in the fields and click “Calculate”.</div>
+
+        <label>Number of bedrooms</label>
+        <input id="bedrooms" type="number" min="0" value="1" />
+
+        <label>Number of bathrooms</label>
+        <input id="bathrooms" type="number" min="0" value="1" />
+
+        <label>Number of kitchens</label>
+        <input id="kitchens" type="number" min="0" value="1" />
+
+        <label>Total area (m²)</label>
+        <input id="area" type="number" min="0" value="60" />
+
+        <button class="btn" id="calcBtn" type="button">Calculate</button>
+
+        <div class="result" aria-live="polite">
+          <p class="price" id="priceText">Estimated price: —</p>
+          <div class="muted" id="priceNote">Final price depends on the condition, level of soiling, and add-on services.</div>
+
+          <div class="row">
+            <a class="primary" id="ctaLink" href="#lead">Get an exact quote</a>
+            <a href="#pricelist">View price list</a>
+          </div>
+        </div>
+
+        <div class="small" style="margin-top:10px">
+          * This is an estimate. Final price is confirmed after clarifying the details.
+        </div>
+      </section>
+
+      <aside class="card">
+        <h2 style="margin:0 0 8px">Why this works</h2>
+        <ul class="list">
+          <li>People see a number right away, not “message us”.</li>
+          <li>After the price you give two next steps: price list and request.</li>
+          <li>Fewer empty chats, more qualified leads.</li>
+        </ul>
+
+        <div class="hr"></div>
+
+        <h3 style="margin:0 0 8px">Pricing settings</h3>
+        <div class="muted">
+          Numbers are easy to change in the <b>PRICING</b> block (below in the JS code).
+        </div>
+      </aside>
+    </div>
+
+    <section class="card" id="pricelist" style="margin-top:16px">
+      <h2 style="margin:0 0 8px">Price list</h2>
+      <div class="muted">Example. Replace with your services.</div>
+      <ul class="list">
+        <li>Standard cleaning: from <b>$XX</b></li>
+        <li>Deep cleaning: from <b>$XX</b></li>
+        <li>Add-ons: oven / fridge / windows / ironing</li>
+      </ul>
+    </section>
+
+    <section class="card" id="lead" style="margin-top:16px">
+      <h2 style="margin:0 0 8px">Get an exact quote</h2>
+      <div class="muted">Leave your contact and a short description.</div>
+
+      <!-- Option A: form via Formspree (works without a backend) -->
+      <form action="https://formspree.io/f/YOUR_ID_HERE" method="POST">
+        <label>Name</label>
+        <input name="name" required placeholder="Your name" />
+
+        <label>Phone / messenger</label>
+        <input name="contact" required placeholder="+1 (___) ___-____ or @telegram" />
+
+        <label>Notes</label>
+        <textarea name="message" rows="4" placeholder="What needs cleaning? Any pets? When do you need it?"></textarea>
+
+        <input type="hidden" name="calculated_price" id="hiddenPrice" value="" />
+
+        <button class="btn" type="submit">Send</button>
+        <div class="small">By clicking “Send”, you agree to the processing of your data for contact purposes.</div>
+      </form>
+
+      <div class="hr"></div>
+
+      <!-- Option B: quick contact buttons (replace contacts) -->
+      <div class="row">
+        <a class="primary" href="tel:+10000000000">Call</a>
+        <a href="https://wa.me/10000000000">WhatsApp</a>
+      </div>
+      <div class="small">* Replace the number with yours.</div>
+    </section>
+  </div>
+
+  <script>
+    // ====== PRICING SETTINGS (edit to match your rates) ======
+    const PRICING = {
+      currency: "$",      // "$", "€", "CAD", "₴"
+      base: 35,           // base fee / callout
+      perBedroom: 18,     // per bedroom
+      perBathroom: 22,    // per bathroom
+      perKitchen: 15,     // per kitchen
+      perSqm: 0.45,       // per 1 m²
+      minPrice: 85        // minimum charge
+    };
+
+    function clamp(n){ return (!Number.isFinite(n) || n < 0) ? 0 : n; }
+
+    function calculate({ bedrooms, bathrooms, kitchens, area }) {
+      bedrooms = clamp(bedrooms);
+      bathrooms = clamp(bathrooms);
+      kitchens = clamp(kitchens);
+      area = clamp(area);
+
+      let price =
+        PRICING.base +
+        bedrooms * PRICING.perBedroom +
+        bathrooms * PRICING.perBathroom +
+        kitchens * PRICING.perKitchen +
+        area * PRICING.perSqm;
+
+      if (price < PRICING.minPrice) price = PRICING.minPrice;
+      return Math.round(price);
+    }
+
+    function getInputs() {
+      return {
+        bedrooms: Number(document.getElementById("bedrooms").value),
+        bathrooms: Number(document.getElementById("bathrooms").value),
+        kitchens: Number(document.getElementById("kitchens").value),
+        area: Number(document.getElementById("area").value),
+      };
+    }
+
+    function setPriceUI(price){
+      document.getElementById("priceText").textContent =
+        `Estimated price: ${PRICING.currency}${price}`;
+
+      document.getElementById("hiddenPrice").value =
+        `${PRICING.currency}${price}`;
+    }
+
+    document.getElementById("calcBtn").addEventListener("click", () => {
+      const inputs = getInputs();
+      if (inputs.area <= 0) {
+        document.getElementById("priceText").textContent = "Estimated price: —";
+        document.getElementById("priceNote").textContent = "Enter a valid area (m²).";
+        return;
+      }
+      const price = calculate(inputs);
+      setPriceUI(price);
+      document.getElementById("priceNote").textContent =
+        "Final price depends on the condition, level of soiling, and add-on services.";
+    });
+
+    // calculate default immediately so it’s live
+    setPriceUI(calculate(getInputs()));
+  </script>
+</body>
+</html>
