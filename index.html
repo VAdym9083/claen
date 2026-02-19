@@ -415,7 +415,7 @@
   </div>
   <div>
     <label>Dining rooms</label>
-    <input id="diningRooms" type="number" min="0" value="0" />
+    <input id="diningRooms" type="number" min="0" value="1" />
   </div>
 </div>
 
@@ -487,7 +487,7 @@
 
     <section class="card" id="booking" style="margin-top:16px">
       <h2>Booking details</h2>
-      <div class="muted">Fill in your details, tap “Copy booking message”, then send it to us on Instagram or Facebook. We’ll call you to confirm and pick the best date. No prepayment required.</div>
+      <div class="muted">Fill in your details, tap “Book now”, then send the copied message to us on Instagram or Facebook. We’ll call you to confirm the booking and choose the most convenient date/time. No prepayment required.</div>
 
       <div class="row" style="margin-top:6px">
         <div>
@@ -593,341 +593,398 @@
   </div>
 
   <script>
-    const PRICING = {
-      currency: "$",
-      hourlyRate: 39,
-      minBillableHours: 5.0,
-            maxBillableHours: 10.0,   // cap billable time
-      freeBonusHours: 0.5,
-      minOrderPrice: 195,
-      baseHours: 1.0,
-      hoursPerBedroom: 0.25,
-      hoursPerBathroom: 0.35,
-      hoursPerKitchen: 0.40,
-      hoursPerDiningRoom: 0.20,
-      hoursPerBasement: 0.30,
-      hoursPerExtraFloor: 0.20,
-      hoursPer1000Sqft: 0.40,
-      rangeMultiplierHigh: 1.15
+document.addEventListener("DOMContentLoaded", () => {
+  // ========= CONFIG =========
+  const PRICING = {
+    hourlyRate: 39,          // $/hour
+    maxMultiplier: 1.15,     // show a range (up to +15%)
+    freeHours: 0.5,          // +30 min FREE on-site
+    minBillableHours: 5.0,   // minimum order = 5 hours
+    maxBillableHours: 10.0,  // cap: cannot book more than 10h (+30 min FREE)
+  };
+
+  const SQFT_PER_M2 = 10.7639;
+
+  // ========= DOM =========
+  const els = {
+    unitSqft: document.getElementById("unitSqft"),
+    unitM2: document.getElementById("unitM2"),
+    unitHint: document.getElementById("unitHint"),
+    areaLabel: document.getElementById("areaLabel"),
+
+    bedrooms: document.getElementById("bedrooms"),
+    bathrooms: document.getElementById("bathrooms"),
+    kitchens: document.getElementById("kitchens"),
+    floors: document.getElementById("floors"),
+    diningRooms: document.getElementById("diningRooms"),
+    basements: document.getElementById("basements"),
+    area: document.getElementById("area"),
+
+    calcBtn: document.getElementById("calcBtn"),
+
+    priceRangeText: document.getElementById("priceRangeText"),
+    billableHoursText: document.getElementById("billableHoursText"),
+    onSiteHoursText: document.getElementById("onSiteHoursText"),
+
+    // Booking fields
+    bName: document.getElementById("bName"),
+    bPhone: document.getElementById("bPhone"),
+    bAddress: document.getElementById("bAddress"),
+    bEmail: document.getElementById("bEmail"),
+    bPreferred: document.getElementById("bPreferred"),
+    bCash: document.getElementById("bCash"),
+    bPets: document.getElementById("bPets"),
+    bNotes: document.getElementById("bNotes"),
+
+    bookBtn: document.getElementById("bookBtn"),
+
+    // Included modal
+    includedBtn: document.getElementById("includedBtn"),
+    includedModal: document.getElementById("includedModal"),
+    closeModal: document.getElementById("closeModal"),
+
+    // Booking modal (post-copy popup)
+    bookingModal: document.getElementById("bookingModal"),
+    closeBookingModal: document.getElementById("closeBookingModal"),
+    bookingCopyStatus: document.getElementById("bookingCopyStatus"),
+    copyAgainBtn: document.getElementById("copyAgainBtn"),
+    bookingMsgBox: document.getElementById("bookingMsgBox"),
+  };
+
+  // ========= STATE =========
+  let currentUnit = "sqft"; // default
+  let lastEstimate = null;  // cache latest estimate
+
+  // ========= HELPERS =========
+  const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+
+  function safeNumber(val) {
+    if (val == null) return 0;
+    const s = String(val).trim().replace(",", ".");
+    const n = parseFloat(s);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function safeInt(val) {
+    const n = Math.round(safeNumber(val));
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function fmtHours(h) {
+    const x = Math.round(h * 100) / 100;
+    if (Number.isInteger(x)) return x.toFixed(1); // 5.0
+    let s = x.toFixed(2);
+    s = s.replace(/0$/, "");
+    return s;
+  }
+
+  function fmtMoney(n) {
+    return Math.round(n);
+  }
+
+  function roundToQuarter(hours) {
+    return Math.round(hours * 4) / 4;
+  }
+
+  // ========= UNIT HANDLING =========
+  function setUnit(unit, convertValue = true) {
+    if (unit !== "sqft" && unit !== "m2") return;
+    if (unit === currentUnit) return;
+
+    if (convertValue) {
+      const v = safeNumber(els.area.value);
+      if (v > 0) {
+        const converted = unit === "m2"
+          ? (v / SQFT_PER_M2)
+          : (v * SQFT_PER_M2);
+        // Keep it clean: area doesn't need many decimals.
+        els.area.value = Math.round(converted);
+      }
+    }
+
+    currentUnit = unit;
+
+    els.unitSqft.setAttribute("aria-selected", unit === "sqft" ? "true" : "false");
+    els.unitM2.setAttribute("aria-selected", unit === "m2" ? "true" : "false");
+
+    els.areaLabel.textContent = unit === "sqft" ? "Total area (sq ft)" : "Total area (m²)";
+    els.unitHint.textContent = unit === "sqft"
+      ? "Tip: most people in Canada use sq ft."
+      : "Tip: switch to sq ft if you know it.";
+
+    // If user already has an estimate on screen, refresh it.
+    if (lastEstimate) renderEstimate();
+  }
+
+  // ========= INPUTS =========
+  function getInputs() {
+    const bedrooms = safeNumber(els.bedrooms.value);
+    const bathrooms = safeNumber(els.bathrooms.value);
+    const kitchens = safeInt(els.kitchens.value);
+    const floors = safeInt(els.floors.value);
+    const diningRooms = safeInt(els.diningRooms.value);
+
+    // Basement is treated as 0/1 in pricing (anything >0 counts as 1)
+    const basementRaw = safeInt(els.basements.value);
+    const basements = basementRaw > 0 ? 1 : 0;
+
+    const areaRaw = safeNumber(els.area.value);
+    const areaSqft = currentUnit === "m2" ? (areaRaw * SQFT_PER_M2) : areaRaw;
+
+    return {
+      bedrooms,
+      bathrooms,
+      kitchens,
+      floors,
+      diningRooms,
+      basements,
+      areaRaw,
+      areaSqft,
+      unit: currentUnit,
+    };
+  }
+
+  // ========= PRICING ALGORITHM =========
+  function baseHoursByArea(areaSqft) {
+    const a = Math.max(1, areaSqft);
+
+    if (a <= 999) return 4.75;
+    if (a <= 1499) return 5.00;
+    if (a <= 1999) return 5.00; // your benchmark
+    if (a <= 2499) return 6.00;
+    if (a <= 2999) return 6.25;
+    if (a <= 3499) return 8.25;
+
+    // 3500+ -> 8.25 + 0.75h per +500 sqft (linear)
+    return 8.25 + 0.75 * ((a - 3500) / 500);
+  }
+
+  function normsByArea(areaSqft) {
+    const a = Math.max(1, areaSqft);
+
+    if (a <= 999) return { bed: 2, bath: 1 };
+    if (a <= 1499) return { bed: 2, bath: 2 };
+    if (a <= 1999) return { bed: 3, bath: 2 }; // benchmark
+    if (a <= 2499) return { bed: 3, bath: 2 };
+    if (a <= 2999) return { bed: 4, bath: 3 };
+    return { bed: 4, bath: 3 }; // 3000+
+  }
+
+  function computeBillableHoursDeep(inputs) {
+    let hours = baseHoursByArea(inputs.areaSqft);
+
+    // Extras above "standard" that is already included in the area base:
+    // Kitchen included 1, Dining included 1, Floors included 1, Basement included 0
+    const extraKitchens = Math.max(0, inputs.kitchens - 1);
+    const extraDining = Math.max(0, inputs.diningRooms - 1);
+    const extraFloors = Math.max(0, inputs.floors - 1);
+    const extraBasement = inputs.basements > 0 ? 1 : 0;
+
+    hours += extraKitchens * 0.75;
+    hours += extraDining * 0.25;
+    hours += extraFloors * 0.35;
+    hours += extraBasement * 0.90;
+
+    // Bedrooms / bathrooms: only above norm for area (soft correction)
+    const norms = normsByArea(inputs.areaSqft);
+    const extraBed = Math.max(0, inputs.bedrooms - norms.bed);
+    const extraBath = Math.max(0, inputs.bathrooms - norms.bath);
+
+    hours += extraBed * 0.25;
+    hours += extraBath * 0.60; // 0.5 bath => 0.30h, 1 bath => 0.60h
+
+    // Round to nearest 0.25 hours
+    let billable = roundToQuarter(hours);
+
+    // Minimum order + cap
+    billable = clamp(billable, PRICING.minBillableHours, PRICING.maxBillableHours);
+
+    return billable;
+  }
+
+  function computePriceRange(billableHours) {
+    const base = billableHours * PRICING.hourlyRate;
+    const minPrice = fmtMoney(base);
+    const maxPrice = fmtMoney(base * PRICING.maxMultiplier);
+    return { minPrice, maxPrice };
+  }
+
+  function renderEstimate() {
+    const inputs = getInputs();
+    const billable = computeBillableHoursDeep(inputs);
+    const onSite = billable + PRICING.freeHours;
+    const { minPrice, maxPrice } = computePriceRange(billable);
+
+    lastEstimate = {
+      ...inputs,
+      billable,
+      onSite,
+      minPrice,
+      maxPrice,
     };
 
-    let currentUnit = "sqft";
+    if (els.priceRangeText) els.priceRangeText.textContent = `$${minPrice}–$${maxPrice}`;
+    if (els.billableHoursText) els.billableHoursText.textContent = `${fmtHours(billable)} hrs`;
+    if (els.onSiteHoursText) els.onSiteHoursText.textContent = `${fmtHours(onSite)} hrs (+30 min FREE)`;
+  }
 
-    const els = {
-      bedrooms: document.getElementById("bedrooms"),
-      bathrooms: document.getElementById("bathrooms"),
-      kitchens: document.getElementById("kitchens"),
-      floors: document.getElementById("floors"),
-      diningRooms: document.getElementById("diningRooms"),
-      basements: document.getElementById("basements"),
-      area: document.getElementById("area"),
-      areaLabel: document.getElementById("areaLabel"),
-      unitSqft: document.getElementById("unitSqft"),
-      unitM2: document.getElementById("unitM2"),
-      unitHint: document.getElementById("unitHint"),
-      calcBtn: document.getElementById("calcBtn"),
-      includedBtn: document.getElementById("includedBtn"),
-      includedModal: document.getElementById("includedModal"),
-      closeModal: document.getElementById("closeModal"),
-      priceText: document.getElementById("priceText"),
-      priceNote: document.getElementById("priceNote"),
-      billableTime: document.getElementById("billableTime"),
-      onsiteTime: document.getElementById("onsiteTime"),
+  // ========= BOOKING MESSAGE =========
+  function buildBookingMessage() {
+    // Ensure we have a fresh estimate
+    renderEstimate();
+    const e = lastEstimate;
 
-      bName: document.getElementById("bName"),
-      bAddress: document.getElementById("bAddress"),
-      bEmail: document.getElementById("bEmail"),
-      bPhone: document.getElementById("bPhone"),
-      bPreferred: document.getElementById("bPreferred"),
-      bCash: document.getElementById("bCash"),
-      bPets: document.getElementById("bPets"),bNotes: document.getElementById("bNotes"),
-      copyStatus: document.getElementById("copyStatus"),
-          bookBtn: document.getElementById("bookBtn"),
-      bookingModal: document.getElementById("bookingModal"),
-      closeBookingModal: document.getElementById("closeBookingModal"),
-      copyAgainBtn: document.getElementById("copyAgainBtn"),
-      bookingCopyStatus: document.getElementById("bookingCopyStatus"),
-      bookingMsgBox: document.getElementById("bookingMsgBox"),
-};
+    const areaLine = e.unit === "m2"
+      ? `Area: ${Math.round(e.areaRaw)} m²`
+      : `Area: ${Math.round(e.areaRaw)} sq ft`;
 
-    const SQFT_PER_M2 = 10.76391041671;
+    // IMPORTANT: no "(minimum $195)" here. Only show the range.
+    const msg =
+`Hi! I'd like to book a Deep Cleaning.
 
-    function clamp(n){ return (!Number.isFinite(n) || n < 0) ? 0 : n; }
-    function roundUpHalf(n){ return Math.ceil(n * 2) / 2; }
-    function areaToSqft(area, unit){ return unit === "m2" ? area * SQFT_PER_M2 : area; }
+--- Estimate from calculator ---
+Bedrooms: ${e.bedrooms}
+Bathrooms: ${e.bathrooms}
+Kitchens: ${e.kitchens}
+Floors: ${e.floors}
+Dining rooms: ${e.diningRooms}
+Basement: ${e.basements}
+${areaLine}
+Estimated price: $${e.minPrice}–$${e.maxPrice}
+Billable time: ${fmtHours(e.billable)} hrs
+On-site time: ${fmtHours(e.onSite)} hrs (+30 min FREE)
 
-    function computeBillableHours({ bedrooms, bathrooms, kitchens, floors, diningRooms, basements, area, unit }){
-  bedrooms = clamp(bedrooms);
-  bathrooms = clamp(bathrooms);
-  kitchens = clamp(kitchens);
-  floors = clamp(floors);
-  diningRooms = clamp(diningRooms);
-  basements = clamp(basements);
-  area = clamp(area);
+Name: ${els.bName?.value || ""}
+Phone: ${els.bPhone?.value || ""}
+Address: ${els.bAddress?.value || ""}
+Email: ${els.bEmail?.value || ""}
+Preferred dates/times: ${els.bPreferred?.value || ""}
+Pay Cash (Yes/No): ${els.bCash?.value || ""}
+Pets: ${els.bPets?.value || ""}
+Wishes & additional notes: ${els.bNotes?.value || ""}
 
-  const areaSqft = areaToSqft(area, unit);
-  const extraFloors = Math.max(0, floors - 1);
+Thank you!`;
 
-  let hours =
-    PRICING.baseHours +
-    bedrooms * PRICING.hoursPerBedroom +
-    bathrooms * PRICING.hoursPerBathroom +
-    kitchens * PRICING.hoursPerKitchen +
-    diningRooms * PRICING.hoursPerDiningRoom +
-    basements * PRICING.hoursPerBasement +
-    extraFloors * PRICING.hoursPerExtraFloor +
-    (areaSqft / 1000) * PRICING.hoursPer1000Sqft;
+    return msg;
+  }
 
-  hours = roundUpHalf(hours);
-  let billable = Math.max(PRICING.minBillableHours, hours);
-      billable = Math.min(PRICING.maxBillableHours, billable);
-      return { billableHours: billable, areaSqft };
-}
-
-
-    function computePriceRange(billableHours){
-      let base = billableHours * PRICING.hourlyRate;
-      base = Math.max(base, PRICING.minOrderPrice);
-      const low = Math.round(base);
-      const high = Math.max(low, Math.round(base * PRICING.rangeMultiplierHigh));
-      return { low, high };
-    }
-
-    function getInputs(){
-  return {
-    bedrooms: Number(els.bedrooms.value),
-    bathrooms: Number(els.bathrooms.value),
-    kitchens: Number(els.kitchens.value),
-    floors: Number(els.floors.value),
-    diningRooms: Number(els.diningRooms.value),
-    basements: Number(els.basements.value),
-    area: Number(els.area.value),
-    unit: currentUnit
-  };
-}
-
-function setUnit(unit){
-      currentUnit = unit;
-
-      if (unit === "sqft"){
-        els.unitSqft.classList.add("active");
-        els.unitM2.classList.remove("active");
-        els.unitSqft.setAttribute("aria-selected", "true");
-        els.unitM2.setAttribute("aria-selected", "false");
-        els.areaLabel.textContent = "Total area (sq ft)";
-        els.unitHint.textContent = "Default: sq ft";
-      } else {
-        els.unitM2.classList.add("active");
-        els.unitSqft.classList.remove("active");
-        els.unitM2.setAttribute("aria-selected", "true");
-        els.unitSqft.setAttribute("aria-selected", "false");
-        els.areaLabel.textContent = "Total area (m²)";
-        els.unitHint.textContent = "Converted to sq ft for calculation";
-      }
-    }
-
-    function renderEstimate(){
-      const inputs = getInputs();
-
-      if (!inputs.area || inputs.area <= 0){
-        els.priceText.textContent = "$—";
-        els.priceNote.textContent = "Enter a valid area to calculate.";
-        els.billableTime.innerHTML = 'Billable time: <b>—</b>';
-        els.onsiteTime.innerHTML = 'On-site time: <b>—</b>';
-        return;
-      }
-
-      const { billableHours } = computeBillableHours(inputs);
-      const onsiteHours = billableHours + PRICING.freeBonusHours;
-      const { low, high } = computePriceRange(billableHours);
-
-      els.priceText.textContent = `${PRICING.currency}${low}–${PRICING.currency}${high}`;
-      els.priceNote.textContent = "Time-based estimate. Final price depends on condition and level of soiling.";
-
-      
-      if (billableHours >= PRICING.maxBillableHours) {
-        els.priceNote.textContent = "Time-based estimate. Capped at 10 billable hours (+30 min FREE). Final price depends on condition and level of soiling.";
-      }
-els.billableTime.innerHTML = `Billable time: <b>${billableHours.toFixed(1)} hrs</b>`;
-      els.onsiteTime.innerHTML = `On-site time: <b>${onsiteHours.toFixed(1)} hrs</b> (+30 min FREE)`;
-    }
-
-    els.unitSqft.addEventListener("click", () => { 
-    setUnit("sqft"); renderEstimate(); });
-    els.unitM2.addEventListener("click", () => { setUnit("m2"); renderEstimate(); });
-    els.calcBtn.addEventListener("click", renderEstimate);
-
-    function openModal(){
-      els.includedModal.classList.add("open");
-      document.body.style.overflow = "hidden";
-    }
-    function closeModal(){
-      els.includedModal.classList.remove("open");
-      document.body.style.overflow = "";
-    }
-    els.includedBtn.addEventListener("click", openModal);
-    els.closeModal.addEventListener("click", closeModal);
-    els.includedModal.addEventListener("click", (e) => {
-      if (e.target === els.includedModal) closeModal();
-    });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") { closeModal(); try { closeBookingModal(); } catch(e2){} }
-    });
-
-    function fmtDateTime(v){
-      if (!v) return "";
+  async function copyToClipboard(text) {
+    try {
+      await navigator.clipboard.writeText(text);
+      return true;
+    } catch (err) {
+      // Fallback (older browsers / permissions)
       try {
-        const d = new Date(v);
-        if (isNaN(d.getTime())) return v;
-        return d.toLocaleString();
-      } catch(e) {
-        return v;
-      }
-    }
-
-            function buildBookingMessage(){
-      const name = (els.bName.value || "").trim();
-      const phone = (els.bPhone.value || "").trim();
-      const address = (els.bAddress.value || "").trim();
-      const email = (els.bEmail.value || "").trim();
-      const preferred = (els.bPreferred.value || "").trim();
-      const cash = (els.bCash.value || "").trim();
-      const pets = (els.bPets.value || "").trim();
-      const notes = (els.bNotes.value || "").trim();
-
-      // Include calculator details (layout + estimated price + hours)
-      const inputs = getInputs();
-      let estimateBlock = "";
-
-      if (inputs.area && inputs.area > 0) {
-        const { billableHours, areaSqft } = computeBillableHours(inputs);
-        const onsiteHours = billableHours + PRICING.freeBonusHours;
-        const { low, high } = computePriceRange(billableHours);
-
-        const areaLine = inputs.unit === "m2"
-          ? `${inputs.area} m² (≈ ${Math.round(areaSqft)} sq ft)`
-          : `${inputs.area} sq ft`;
-
-        estimateBlock =
-`--- Estimate from calculator ---
-Bedrooms: ${inputs.bedrooms}
-Bathrooms: ${inputs.bathrooms}
-Kitchens: ${inputs.kitchens}
-Floors: ${inputs.floors}
-Dining rooms: ${inputs.diningRooms}
-Basement: ${inputs.basements}
-Area: ${areaLine}
-Estimated price: ${PRICING.currency}${low}–${PRICING.currency}${high}
-Billable time: ${billableHours.toFixed(1)} hrs
-On-site time: ${onsiteHours.toFixed(1)} hrs (+30 min FREE)
-
-`;
-      } else {
-        estimateBlock =
-`--- Estimate from calculator ---
-(Please enter the area and tap "Calculate" first)
-
-`;
-      }
-
-      return `Hi! I'd like to book a Deep Cleaning.
-
-${estimateBlock}` +
-        `Name: ${name}
-` +
-        `Phone: ${phone}
-` +
-        `Address: ${address}
-` +
-        `Email: ${email}
-` +
-        `Preferred dates/times: ${preferred}
-` +
-        `Pay Cash (Yes/No): ${cash}
-` +
-        `Pets: ${pets}
-` +
-        `Wishes & additional notes: ${notes}
-
-` +
-        `Thank you!`;
-    }
-
-
-    async function copyToClipboard(text){
-      try {
-        await navigator.clipboard.writeText(text);
-        return true;
-      } catch (e) {
         const ta = document.createElement("textarea");
         ta.value = text;
         ta.style.position = "fixed";
         ta.style.left = "-9999px";
-        ta.style.top = "0";
+        ta.style.top = "-9999px";
         document.body.appendChild(ta);
         ta.focus();
         ta.select();
-        let ok = false;
-        try {
-          ok = document.execCommand("copy");
-        } catch(e2) {
-          ok = false;
-        }
-
-function openBookingModal(message, copiedOk){
-  els.bookingMsgBox.value = message;
-  els.bookingCopyStatus.className = copiedOk ? "statusOk" : "statusBad";
-  els.bookingCopyStatus.textContent = copiedOk
-    ? "✅ Message copied to clipboard"
-    : "⚠️ Could not copy automatically. Use 'Copy again' or copy from the box below.";
-
-  els.bookingModal.classList.add("open");
-  document.body.style.overflow = "hidden";
-  try { els.bookingMsgBox.scrollTop = 0; } catch(e){}
-}
-
-function closeBookingModal(){
-  els.bookingModal.classList.remove("open");
-  document.body.style.overflow = "";
-}
-
-els.closeBookingModal.addEventListener("click", closeBookingModal);
-els.bookingModal.addEventListener("click", (e) => {
-  if (e.target === els.bookingModal) closeBookingModal();
-});
-
-els.copyAgainBtn.addEventListener("click", async () => {
-  const msg = els.bookingMsgBox.value || "";
-  const ok = await copyToClipboard(msg);
-  els.bookingCopyStatus.className = ok ? "statusOk" : "statusBad";
-  els.bookingCopyStatus.textContent = ok
-    ? "✅ Message copied to clipboard"
-    : "⚠️ Could not copy automatically. Please select and copy the text manually.";
-  if (!ok){
-    try { window.prompt("Copy this booking message:", msg); } catch(e){}
-  }
-});
-
-els.bookBtn.addEventListener("click", async () => {
-  const msg = buildBookingMessage();
-  const ok = await copyToClipboard(msg);
-
-  if (els.copyStatus) {
-    els.copyStatus.textContent = ok
-      ? "Copied. Now send the message via Instagram/Facebook."
-      : "Could not copy automatically. Please copy manually in the next step.";
-  }
-
-  openBookingModal(msg, ok);
-});
-
+        const ok = document.execCommand("copy");
         document.body.removeChild(ta);
-        return ok;
+        return !!ok;
+      } catch (e) {
+        return false;
       }
     }
-    setUnit("sqft");
-    renderEstimate();
-  </script>
+  }
+
+  function openBookingModal(message, copied) {
+    if (!els.bookingModal) return;
+
+    els.bookingMsgBox.value = message;
+    els.bookingCopyStatus.textContent = copied
+      ? "Copied to clipboard. Now tap Instagram or Facebook and paste the message."
+      : "Couldn’t auto-copy on this device. Please copy the message from the box below, then tap Instagram or Facebook.";
+
+    els.bookingModal.setAttribute("aria-hidden", "false");
+    els.bookingModal.classList.add("open");
+  }
+
+  function closeBookingModal() {
+    if (!els.bookingModal) return;
+    els.bookingModal.setAttribute("aria-hidden", "true");
+    els.bookingModal.classList.remove("open");
+  }
+
+  async function openBookingFlow() {
+    const message = buildBookingMessage();
+    const copied = await copyToClipboard(message);
+    openBookingModal(message, copied);
+  }
+
+  // ========= INCLUDED MODAL =========
+  function openIncludedModal() {
+    if (!els.includedModal) return;
+    els.includedModal.setAttribute("aria-hidden", "false");
+    els.includedModal.classList.add("open");
+  }
+
+  function closeIncludedModal() {
+    if (!els.includedModal) return;
+    els.includedModal.setAttribute("aria-hidden", "true");
+    els.includedModal.classList.remove("open");
+  }
+
+  // ========= EVENTS =========
+  if (els.unitSqft) els.unitSqft.addEventListener("click", () => setUnit("sqft"));
+  if (els.unitM2) els.unitM2.addEventListener("click", () => setUnit("m2"));
+
+  if (els.calcBtn) els.calcBtn.addEventListener("click", () => renderEstimate());
+
+  // Book button: copy + open popup (best for conversion)
+  if (els.bookBtn) els.bookBtn.addEventListener("click", (e) => {
+    e.preventDefault();
+    openBookingFlow();
+  });
+
+  // Booking modal controls
+  if (els.closeBookingModal) els.closeBookingModal.addEventListener("click", closeBookingModal);
+  if (els.copyAgainBtn) els.copyAgainBtn.addEventListener("click", async () => {
+    const msg = buildBookingMessage();
+    const copied = await copyToClipboard(msg);
+    els.bookingCopyStatus.textContent = copied
+      ? "Copied again. Now paste it in the chat."
+      : "Still can’t auto-copy here. Please copy the text manually from the box.";
+  });
+
+  // Close booking modal on backdrop click
+  if (els.bookingModal) {
+    els.bookingModal.addEventListener("click", (e) => {
+      if (e.target === els.bookingModal) closeBookingModal();
+    });
+  }
+
+  // Included modal controls
+  if (els.includedBtn) els.includedBtn.addEventListener("click", openIncludedModal);
+  if (els.closeModal) els.closeModal.addEventListener("click", closeIncludedModal);
+  if (els.includedModal) {
+    els.includedModal.addEventListener("click", (e) => {
+      if (e.target === els.includedModal) closeIncludedModal();
+    });
+  }
+
+  // ESC closes any open modal
+  document.addEventListener("keydown", (e) => {
+    if (e.key !== "Escape") return;
+    closeIncludedModal();
+    closeBookingModal();
+  });
+
+  // ========= INIT =========
+  // Default unit is sq ft (better for Canada)
+  currentUnit = "sqft";
+  if (els.unitSqft) els.unitSqft.setAttribute("aria-selected", "true");
+  if (els.unitM2) els.unitM2.setAttribute("aria-selected", "false");
+  if (els.areaLabel) els.areaLabel.textContent = "Total area (sq ft)";
+  if (els.unitHint) els.unitHint.textContent = "Tip: most people in Canada use sq ft.";
+
+  renderEstimate();
+});
+</script>
 
   <div class="modal" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
     <div class="modalCard">
