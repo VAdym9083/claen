@@ -770,10 +770,6 @@ els.billableTime.innerHTML = `Billable time: <b>${billableHours.toFixed(1)} hrs<
     els.includedModal.addEventListener("click", (e) => {
       if (e.target === els.includedModal) closeModal();
     });
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") { closeModal(); try { closeBookingModal(); } catch(e2){} }
-    });
-
     function fmtDateTime(v){
       if (!v) return "";
       try {
@@ -855,24 +851,28 @@ ${estimateBlock}` +
 
 
     async function copyToClipboard(text){
-      try {
-        await navigator.clipboard.writeText(text);
-        return true;
-      } catch (e) {
-        const ta = document.createElement("textarea");
-        ta.value = text;
-        ta.style.position = "fixed";
-        ta.style.left = "-9999px";
-        ta.style.top = "0";
-        document.body.appendChild(ta);
-        ta.focus();
-        ta.select();
-        let ok = false;
-        try {
-          ok = document.execCommand("copy");
-        } catch(e2) {
-          ok = false;
-        }
+  try {
+    await navigator.clipboard.writeText(text);
+    return true;
+  } catch (e) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.left = "-9999px";
+    ta.style.top = "0";
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    let ok = false;
+    try {
+      ok = document.execCommand("copy");
+    } catch(e2) {
+      ok = false;
+    }
+    document.body.removeChild(ta);
+    return ok;
+  }
+}
 
 function openBookingModal(message, copiedOk){
   els.bookingMsgBox.value = message;
@@ -891,11 +891,13 @@ function closeBookingModal(){
   document.body.style.overflow = "";
 }
 
+// Close booking modal
 els.closeBookingModal.addEventListener("click", closeBookingModal);
 els.bookingModal.addEventListener("click", (e) => {
   if (e.target === els.bookingModal) closeBookingModal();
 });
 
+// Copy again button (works even when clipboard is blocked)
 els.copyAgainBtn.addEventListener("click", async () => {
   const msg = els.bookingMsgBox.value || "";
   const ok = await copyToClipboard(msg);
@@ -903,11 +905,14 @@ els.copyAgainBtn.addEventListener("click", async () => {
   els.bookingCopyStatus.textContent = ok
     ? "✅ Message copied to clipboard"
     : "⚠️ Could not copy automatically. Please select and copy the text manually.";
+
   if (!ok){
+    // Fallback that often works on mobile in-app browsers
     try { window.prompt("Copy this booking message:", msg); } catch(e){}
   }
 });
 
+// BOOK: copy + open modal (so the user definitely sees the next step)
 els.bookBtn.addEventListener("click", async () => {
   const msg = buildBookingMessage();
   const ok = await copyToClipboard(msg);
@@ -921,11 +926,15 @@ els.bookBtn.addEventListener("click", async () => {
   openBookingModal(msg, ok);
 });
 
-        document.body.removeChild(ta);
-        return ok;
-      }
-    }
-    setUnit("sqft");
+// ESC closes both modals
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") {
+    try { closeModal(); } catch(e1){}
+    try { closeBookingModal(); } catch(e2){}
+  }
+});
+
+setUnit("sqft");
     renderEstimate();
   </script>
 
