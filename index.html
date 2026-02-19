@@ -15,17 +15,18 @@
 
   <style>
     :root{
-      /* Palette aligned to your creative (yellow + dark) */
       --bg:#f5f7fb;
       --card:#ffffff;
       --text:#121212;
       --muted:#5c636b;
       --border:rgba(18,18,18,.12);
 
-      --accent:#f5c400;     /* primary yellow */
-      --accentDark:#1a1a1a; /* near-black */
+      --accent:#f5c400;
+      --accent2:#ffdf6a;
+      --accentDark:#1a1a1a;
       --shadow: 0 18px 55px rgba(0,0,0,.10);
-      --radius:18px;
+      --radius:20px;
+      --btnH:56px;
     }
 
     *{box-sizing:border-box}
@@ -39,34 +40,52 @@
       color:var(--text);
     }
     a{color:inherit}
-    .wrap{max-width:1080px;margin:0 auto;padding:26px}
+    .wrap{max-width:1100px;margin:0 auto;padding:24px}
     .hero{
-      background: linear-gradient(180deg, rgba(245,196,0,.22), rgba(245,196,0,.08));
-      border:1px solid rgba(245,196,0,.45);
+      background: linear-gradient(180deg, rgba(245,196,0,.26), rgba(245,196,0,.08));
+      border:1px solid rgba(245,196,0,.55);
       border-radius: var(--radius);
       padding:22px;
       box-shadow: var(--shadow);
+      position:relative;
+      overflow:hidden;
+    }
+    .hero:after{
+      content:"";
+      position:absolute;right:-120px;top:-140px;
+      width:340px;height:340px;border-radius:50%;
+      background: rgba(26,26,26,.08);
     }
     .badge{
       display:inline-flex;gap:8px;align-items:center;
-      padding:6px 10px;border-radius:999px;
+      padding:7px 12px;border-radius:999px;
       background: rgba(26,26,26,.92);
       border:1px solid rgba(26,26,26,.92);
-      color: #fff;
+      color:#fff;
       font-size:12px;
+      letter-spacing:.2px;
     }
-    h1{margin:10px 0 8px;font-size:30px;line-height:1.1}
-    .sub{margin:0;color:rgba(18,18,18,.78);max-width:820px}
+    h1{margin:10px 0 6px;font-size:30px;line-height:1.1}
+    .sub{margin:0;color:rgba(18,18,18,.78);max-width:860px}
+    .heroRow{display:flex;gap:12px;flex-wrap:wrap;margin-top:14px}
+    .heroPill{
+      padding:10px 12px;border-radius:16px;
+      background: rgba(255,255,255,.85);
+      border:1px solid rgba(18,18,18,.10);
+      font-weight:800;
+      font-size:14px;
+    }
+    .heroPill b{color:var(--accentDark)}
+
     .grid{
       display:grid;
-      grid-template-columns: 1.1fr .9fr;
+      grid-template-columns: 1.05fr .95fr;
       gap:16px;
       margin-top:16px;
       align-items:start;
     }
-    @media (max-width: 920px){
-      .grid{grid-template-columns:1fr}
-    }
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
+
     .card{
       background: var(--card);
       border:1px solid var(--border);
@@ -76,124 +95,138 @@
     }
     .card h2{margin:0 0 6px;font-size:18px}
     .muted{color:var(--muted);font-size:13px}
+
     label{display:block;margin:12px 0 6px;font-size:14px;color: rgba(18,18,18,.88)}
-    input, textarea{
+    input, textarea, select{
       width:100%;
       padding:12px 12px;
-      border-radius: 14px;
+      border-radius: 16px;
       border: 1px solid var(--border);
-      background: #fff;
-      color: var(--text);
+      background:#fff;
+      color:var(--text);
       font-size:15px;
       outline:none;
     }
+    textarea{resize:vertical;min-height:104px}
     input::placeholder, textarea::placeholder{color: rgba(18,18,18,.45)}
-    .row{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-    }
-    @media (max-width: 520px){
-      .row{grid-template-columns:1fr}
-    }
+
+    .row{display:grid;grid-template-columns: 1fr 1fr;gap:12px}
+    @media (max-width: 560px){ .row{grid-template-columns:1fr} }
+
     .unitbar{
       display:flex;gap:10px;align-items:center;justify-content:space-between;
-      padding:10px 12px;border-radius: 14px;
+      padding:10px 12px;border-radius: 16px;
       border:1px solid var(--border);
-      background: rgba(245,247,251,.9);
+      background: rgba(245,247,251,.95);
       margin-top:10px;
     }
     .seg{
       display:flex;gap:6px;align-items:center;
       border:1px solid var(--border);
-      background: #fff;
-      border-radius: 999px;
+      background:#fff;
+      border-radius:999px;
       padding:4px;
     }
     .seg button{
       border:0;border-radius:999px;
-      padding:8px 12px;
+      padding:9px 12px;
       font-size:13px;
-      background: transparent;
+      background:transparent;
       color: rgba(18,18,18,.70);
       cursor:pointer;
     }
     .seg button.active{
-      background: rgba(245,196,0,.85);
-      color: #111;
+      background: rgba(245,196,0,.90);
+      color:#111;
       border:1px solid rgba(245,196,0,.95);
     }
+
     .btn{
       width:100%;
       border:0;
-      border-radius: 14px;
-      padding:12px 14px;
+      border-radius: 18px;
+      height: var(--btnH);
+      padding:0 16px;
       cursor:pointer;
-      font-weight:800;
-      font-size:15px;
+      font-weight:900;
+      font-size:16px;
       background: var(--accent);
       color:#111;
       margin-top:14px;
-      box-shadow: 0 12px 28px rgba(245,196,0,.25);
+      box-shadow: 0 12px 28px rgba(245,196,0,.28);
     }
+    .btn:active{transform: translateY(1px)}
+
     .btn.secondary{
       background: var(--accentDark);
-      color: #fff;
+      color:#fff;
       border:1px solid rgba(26,26,26,.95);
       margin-top:10px;
-      font-weight:800;
-      box-shadow: none;
+      box-shadow:none;
     }
+    .btn.ghost{
+      background:#fff;
+      border:1px solid rgba(18,18,18,.16);
+      box-shadow:none;
+    }
+
     .result{
       margin-top:14px;
-      padding:14px;
-      border-radius: 16px;
-      background: rgba(245,196,0,.10);
-      border:1px solid rgba(245,196,0,.35);
+      padding:16px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(245,196,0,.14), rgba(245,196,0,.06));
+      border:1px solid rgba(245,196,0,.45);
     }
-    .price{
-      margin:0;
-      font-size:24px;
-      font-weight:900;
+
+    .priceTop{
+      display:flex;align-items:baseline;justify-content:space-between;
+      gap:10px;flex-wrap:wrap;
+    }
+    .priceLabel{font-size:14px;color:rgba(18,18,18,.70);font-weight:800}
+    .priceValue{
+      font-size:36px;
+      line-height:1;
+      font-weight:1000;
       letter-spacing:.2px;
+      background: rgba(26,26,26,.92);
+      color:#fff;
+      padding:10px 14px;
+      border-radius: 18px;
     }
-    .timebox{
-      margin-top:10px;
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:10px;
-    }
-    @media (max-width: 520px){
-      .timebox{grid-template-columns:1fr}
-    }
+    .note{margin:10px 0 0;color:rgba(18,18,18,.72);font-size:13px}
+
+    .timebox{margin-top:12px;display:grid;grid-template-columns:1fr;gap:10px}
     .pill{
-      padding:10px 12px;
-      border-radius: 14px;
+      padding:14px 14px;
+      border-radius: 18px;
       border:1px solid rgba(18,18,18,.12);
-      background: #fff;
-      font-size:13px;
+      background:#fff;
+      font-size:14px;
       color: rgba(18,18,18,.72);
     }
-    .pill b{color: var(--text)}
-    .ctaRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-    .ctaRow a{
-      text-decoration:none;
-      padding:10px 12px;border-radius: 14px;
-      border:1px solid rgba(18,18,18,.14);
-      background: #fff;
-      color: var(--text);
-      font-weight:800;
-      font-size:14px;
-    }
-    .ctaRow a.primary{
-      background: rgba(26,26,26,.92);
-      color: #fff;
-      border:1px solid rgba(26,26,26,.92);
-    }
+    .pill b{color:var(--text)}
+
+    .ctaRow{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+    @media (max-width: 560px){ .ctaRow{grid-template-columns:1fr} }
+
     .hr{height:1px;background: rgba(18,18,18,.10);margin:16px 0}
     .small{font-size:12px;color: rgba(18,18,18,.60)}
 
-    /* Modal (FIX: allow scrolling on mobile) */
+    .contactGrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+    @media (max-width: 560px){ .contactGrid{grid-template-columns:1fr} }
+    .contactBtn{
+      display:flex;align-items:center;justify-content:center;
+      height: var(--btnH);
+      border-radius: 18px;
+      text-decoration:none;
+      font-weight:950;
+      border:1px solid rgba(18,18,18,.16);
+      background:#fff;
+    }
+    .contactBtn.dark{background: rgba(26,26,26,.92); color:#fff; border-color: rgba(26,26,26,.92)}
+    .contactBtn.yellow{background: var(--accent); color:#111; border-color: rgba(245,196,0,.95)}
+
+    /* Modal scroll fix */
     .modal{
       position:fixed;inset:0;display:none;
       background: rgba(0,0,0,.55);
@@ -206,7 +239,7 @@
     .modalCard{
       max-width: 980px;
       margin: 2vh auto;
-      background: #fff;
+      background:#fff;
       border:1px solid rgba(18,18,18,.16);
       border-radius: 22px;
       box-shadow: 0 20px 70px rgba(0,0,0,.25);
@@ -225,30 +258,24 @@
     .closeBtn{
       border:1px solid rgba(18,18,18,.16);
       background: rgba(26,26,26,.92);
-      color: #fff;
+      color:#fff;
       border-radius: 12px;
       padding:8px 10px;
       cursor:pointer;
-      font-weight:900;
+      font-weight:950;
     }
     .modalBody{
       padding:14px 16px;
       overflow:auto;
       -webkit-overflow-scrolling: touch;
     }
-    .gallery{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-    }
-    @media (max-width: 860px){
-      .gallery{grid-template-columns:1fr}
-    }
+    .gallery{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width: 860px){ .gallery{grid-template-columns:1fr} }
     .gItem{
       border:1px solid rgba(18,18,18,.12);
       border-radius: 16px;
       overflow:hidden;
-      background: #fff;
+      background:#fff;
     }
     .gItem .cap{
       padding:10px 12px;
@@ -257,16 +284,21 @@
       background: rgba(245,196,0,.10);
       border-bottom:1px solid rgba(18,18,18,.08);
     }
-    .gItem img{
-      width:100%;
-      display:block;
-      background:#fff;
+    .gItem img{width:100%;display:block;background:#fff}
+    .gTitle{font-weight:950;color:var(--text);margin-right:8px}
+
+    .stickyBar{
+      position:fixed;left:0;right:0;bottom:0;
+      padding:10px 12px;
+      background: rgba(255,255,255,.92);
+      border-top:1px solid rgba(18,18,18,.12);
+      backdrop-filter: blur(10px);
+      display:none;
+      z-index:40;
     }
-    .gTitle{
-      font-weight:900;
-      color: var(--text);
-      margin-right:8px;
-    }
+    .stickyBar .inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .stickyBar a{height:46px;border-radius:16px;font-weight:950}
+    @media (max-width: 980px){ .stickyBar{display:block} body{padding-bottom:80px} }
   </style>
 </head>
 
@@ -275,13 +307,18 @@
     <section class="hero">
       <div class="badge">Toronto & GTA • Deep Cleaning • +30 min FREE</div>
       <h1>Deep Cleaning Price Calculator</h1>
-      <p class="sub">Enter the details to get a time-based estimate. Minimum order price is <b>$195</b> for <b>5 hours</b>, plus <b>30 minutes FREE</b> on top.</p>
+      <p class="sub">Time-based estimate with a clear minimum. Minimum order is <b>$195</b> for <b>5 hours</b>, plus <b>30 minutes FREE</b> on top.</p>
+      <div class="heroRow">
+        <div class="heroPill">Minimum: <b>$195 / 5 hours</b></div>
+        <div class="heroPill">Bonus: <b>+30 minutes FREE</b></div>
+        <div class="heroPill">Area unit: <b>sq ft</b> (default)</div>
+      </div>
     </section>
 
     <div class="grid">
       <section class="card" id="calculator">
         <h2>Estimate</h2>
-        <div class="muted">Fill in the fields and click “Calculate”.</div>
+        <div class="muted">Enter details and tap “Calculate”.</div>
 
         <div class="row">
           <div>
@@ -299,7 +336,7 @@
 
         <div class="unitbar">
           <div>
-            <div style="font-weight:900">Area unit</div>
+            <div style="font-weight:950">Area unit</div>
             <div class="muted" id="unitHint">Default: sq ft</div>
           </div>
           <div class="seg" role="tablist" aria-label="Area unit">
@@ -315,8 +352,11 @@
         <button class="btn secondary" id="includedBtn" type="button">What’s included in deep cleaning?</button>
 
         <div class="result" aria-live="polite">
-          <p class="price" id="priceText">Estimated price: —</p>
-          <div class="muted" id="priceNote">Final price depends on the condition and level of soiling.</div>
+          <div class="priceTop">
+            <div class="priceLabel">Estimated price</div>
+            <div class="priceValue" id="priceText">$—</div>
+          </div>
+          <div class="note" id="priceNote">Time-based estimate. Final price depends on condition and level of soiling.</div>
 
           <div class="timebox">
             <div class="pill" id="billableTime">Billable time: <b>—</b></div>
@@ -324,8 +364,8 @@
           </div>
 
           <div class="ctaRow">
-            <a class="primary" href="#lead">Get an exact quote</a>
-            <a href="#pricing">How pricing works</a>
+            <a class="contactBtn dark" href="#booking">Get an exact quote</a>
+            <a class="contactBtn" href="#pricing">How pricing works</a>
           </div>
         </div>
 
@@ -337,52 +377,113 @@
       <aside class="card" id="pricing">
         <h2>How pricing works</h2>
         <p class="muted" style="margin:0 0 10px">
-          We calculate an <b>estimated billable time</b> from your bedrooms, bathrooms, kitchens, and area.
-          Billing has a <b>5-hour minimum</b> plus <b>30 minutes free</b> added to the total on-site time.
-          Minimum order is <b>$195</b>.
+          We estimate <b>billable time</b> from bedrooms, bathrooms, kitchens, and area. There is a <b>5-hour minimum</b>.
+          On-site time always includes <b>+30 minutes FREE</b>. Minimum order price is <b>$195</b>.
         </p>
 
         <div class="hr"></div>
 
-        <h2 style="margin-top:0">Adjust your rates</h2>
-        <p class="muted" style="margin:0">
-          You can change the hourly rate and time multipliers inside the <b>PRICING</b> block in the code.
-        </p>
+        <h2 style="margin-top:0">Quick contact</h2>
+        <div class="muted">Ask a question, уточнити деталі або замовити напряму:</div>
+        <div class="contactGrid">
+          <a class="contactBtn yellow" href="https://www.instagram.com/northstarclean17?igsh=MTMzdjZ6M3hobTBtOQ==" target="_blank" rel="noopener">Message on Instagram</a>
+          <a class="contactBtn dark" href="https://www.facebook.com/share/14Yi6YNeais/" target="_blank" rel="noopener">Message on Facebook</a>
+        </div>
 
         <div class="hr"></div>
 
-        <ul class="muted" style="margin:0;padding-left:18px">
-          <li>Minimum billable time: <b>5.0 hours</b></li>
-          <li>Always included: <b>+0.5 hours (FREE)</b></li>
-          <li>Minimum order price: <b>$195</b></li>
-          <li>We show a <b>price range</b> to avoid “fixed price” misunderstandings.</li>
-        </ul>
+        <div class="muted" style="margin-bottom:8px"><b>Minimum order</b></div>
+        <div class="heroPill" style="display:inline-block;margin-bottom:8px">Starting at <b>$195 for 5 hours</b></div>
+        <div class="muted">Add-ons (upholstery, carpet, oven, fridge, windows) can add time and cost.</div>
       </aside>
     </div>
 
-    <section class="card" id="lead" style="margin-top:16px">
-      <h2>Get an exact quote</h2>
-      <div class="muted">Leave your contact and a short description. We’ll confirm time & final price.</div>
+    <section class="card" id="booking" style="margin-top:16px">
+      <h2>Booking details</h2>
+      <div class="muted">Fill this in, then tap “Copy booking message” and send it to us on Instagram or Facebook.</div>
 
-      <form action="https://formspree.io/f/YOUR_ID_HERE" method="POST">
-        <label>Name</label>
-        <input name="name" required placeholder="Your name" />
+      <div class="row" style="margin-top:6px">
+        <div>
+          <label>Name</label>
+          <input id="bName" placeholder="Name" />
+        </div>
+        <div>
+          <label>Email</label>
+          <input id="bEmail" type="email" placeholder="Email" />
+        </div>
+      </div>
 
-        <label>Phone / messenger</label>
-        <input name="contact" required placeholder="+1 (___) ___-____ or @telegram" />
+      <label>Address</label>
+      <input id="bAddress" placeholder="Address" />
 
-        <label>Notes</label>
-        <textarea name="message" rows="4" placeholder="Any pets? What needs extra attention? Preferred date/time?"></textarea>
+      <div class="row">
+        <div>
+          <label>Date and time of service</label>
+          <input id="bDateTime" type="datetime-local" />
+        </div>
+        <div>
+          <label>Bring our own equipment</label>
+          <select id="bEquipment">
+            <option value="">Select</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+        </div>
+      </div>
 
-        <input type="hidden" name="estimated_price_range" id="hiddenPrice" value="" />
-        <input type="hidden" name="estimated_billable_hours" id="hiddenBillable" value="" />
-        <input type="hidden" name="estimated_onsite_hours" id="hiddenOnsite" value="" />
-        <input type="hidden" name="area_unit" id="hiddenUnit" value="sqft" />
-        <input type="hidden" name="area_sqft" id="hiddenAreaSqft" value="" />
+      <div class="row">
+        <div>
+          <label>Pay Cash (Yes/No)</label>
+          <select id="bCash">
+            <option value="">Select</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+        </div>
+        <div>
+          <label>Pets</label>
+          <select id="bPets">
+            <option value="">Select</option>
+            <option>No</option>
+            <option>Yes</option>
+          </select>
+        </div>
+      </div>
 
-        <button class="btn" type="submit">Send</button>
-        <div class="small">By clicking “Send”, you agree to the processing of your data for contact purposes.</div>
-      </form>
+      <label>Priorities</label>
+      <textarea id="bPriorities" placeholder="What should we focus on? (kitchen, bathroom, floors, etc.)"></textarea>
+
+      <label>Other Notes</label>
+      <textarea id="bNotes" placeholder="Any extra details, access instructions, parking, etc."></textarea>
+
+      <div class="row">
+        <button class="btn" id="copyMsgBtn" type="button">Copy booking message</button>
+        <button class="btn ghost" id="previewMsgBtn" type="button">Preview message</button>
+      </div>
+
+      <div class="contactGrid">
+        <a class="contactBtn yellow" href="https://www.instagram.com/northstarclean17?igsh=MTMzdjZ6M3hobTBtOQ==" target="_blank" rel="noopener">Open Instagram</a>
+        <a class="contactBtn dark" href="https://www.facebook.com/share/14Yi6YNeais/" target="_blank" rel="noopener">Open Facebook</a>
+      </div>
+
+      <div class="small" id="copyStatus" style="margin-top:10px"></div>
+
+      <div class="hr"></div>
+
+      <div class="muted" style="font-weight:950;margin-bottom:8px">Booking message template</div>
+      <pre id="templateBlock" style="white-space:pre-wrap;margin:0;background:rgba(245,196,0,.10);border:1px solid rgba(245,196,0,.35);padding:12px;border-radius:18px;font-size:13px;line-height:1.35">To book the service, can you please provide the following details:
+
+Name:
+Address:
+Email:
+Date and time of service:
+Bring our own equipment:
+Pay Cash (Yes/No):
+Pets:
+Priorities:
+Other Notes:
+
+Thank you!</pre>
     </section>
   </div>
 
@@ -417,27 +518,29 @@
     </div>
   </div>
 
+  <div class="stickyBar" aria-hidden="true">
+    <div class="inner">
+      <a class="contactBtn yellow" href="https://www.instagram.com/northstarclean17?igsh=MTMzdjZ6M3hobTBtOQ==" target="_blank" rel="noopener">Instagram</a>
+      <a class="contactBtn dark" href="https://www.facebook.com/share/14Yi6YNeais/" target="_blank" rel="noopener">Facebook</a>
+    </div>
+  </div>
+
   <script>
-    // ====== PRICING SETTINGS (edit to match your rates) ======
     const PRICING = {
       currency: "$",
-      hourlyRate: 39,           // $195 / 5 hours
-      minBillableHours: 5.0,    // minimum billable time
-      freeBonusHours: 0.5,      // always FREE (+30 minutes)
-      minOrderPrice: 195,       // minimum price (hard floor)
-
-      // Time model (tune these to match your crew speed)
+      hourlyRate: 39,
+      minBillableHours: 5.0,
+      freeBonusHours: 0.5,
+      minOrderPrice: 195,
       baseHours: 1.0,
       hoursPerBedroom: 0.75,
       hoursPerBathroom: 1.05,
       hoursPerKitchen: 1.30,
       hoursPer1000Sqft: 1.00,
-
-      // Price range buffer to avoid "fixed price" misunderstanding
       rangeMultiplierHigh: 1.15
     };
 
-    let currentUnit = "sqft"; // default
+    let currentUnit = "sqft";
 
     const els = {
       bedrooms: document.getElementById("bedrooms"),
@@ -456,22 +559,26 @@
       priceNote: document.getElementById("priceNote"),
       billableTime: document.getElementById("billableTime"),
       onsiteTime: document.getElementById("onsiteTime"),
-      hiddenPrice: document.getElementById("hiddenPrice"),
-      hiddenBillable: document.getElementById("hiddenBillable"),
-      hiddenOnsite: document.getElementById("hiddenOnsite"),
-      hiddenUnit: document.getElementById("hiddenUnit"),
-      hiddenAreaSqft: document.getElementById("hiddenAreaSqft"),
+
+      bName: document.getElementById("bName"),
+      bAddress: document.getElementById("bAddress"),
+      bEmail: document.getElementById("bEmail"),
+      bDateTime: document.getElementById("bDateTime"),
+      bEquipment: document.getElementById("bEquipment"),
+      bCash: document.getElementById("bCash"),
+      bPets: document.getElementById("bPets"),
+      bPriorities: document.getElementById("bPriorities"),
+      bNotes: document.getElementById("bNotes"),
+      copyMsgBtn: document.getElementById("copyMsgBtn"),
+      previewMsgBtn: document.getElementById("previewMsgBtn"),
+      copyStatus: document.getElementById("copyStatus"),
     };
 
     const SQFT_PER_M2 = 10.76391041671;
 
     function clamp(n){ return (!Number.isFinite(n) || n < 0) ? 0 : n; }
     function roundUpHalf(n){ return Math.ceil(n * 2) / 2; }
-
-    function areaToSqft(area, unit){
-      if (unit === "m2") return area * SQFT_PER_M2;
-      return area;
-    }
+    function areaToSqft(area, unit){ return unit === "m2" ? area * SQFT_PER_M2 : area; }
 
     function computeBillableHours({ bedrooms, bathrooms, kitchens, area, unit }){
       bedrooms = clamp(bedrooms);
@@ -489,16 +596,13 @@
         (areaSqft / 1000) * PRICING.hoursPer1000Sqft;
 
       hours = roundUpHalf(hours);
-
       const billable = Math.max(PRICING.minBillableHours, hours);
-
       return { billableHours: billable, areaSqft };
     }
 
     function computePriceRange(billableHours){
       let base = billableHours * PRICING.hourlyRate;
       base = Math.max(base, PRICING.minOrderPrice);
-
       const low = Math.round(base);
       const high = Math.max(low, Math.round(base * PRICING.rangeMultiplierHigh));
       return { low, high };
@@ -516,7 +620,6 @@
 
     function setUnit(unit){
       currentUnit = unit;
-      els.hiddenUnit.value = unit;
 
       if (unit === "sqft"){
         els.unitSqft.classList.add("active");
@@ -539,36 +642,26 @@
       const inputs = getInputs();
 
       if (!inputs.area || inputs.area <= 0){
-        els.priceText.textContent = "Estimated price: —";
+        els.priceText.textContent = "$—";
         els.priceNote.textContent = "Enter a valid area to calculate.";
         els.billableTime.innerHTML = 'Billable time: <b>—</b>';
         els.onsiteTime.innerHTML = 'On-site time: <b>—</b>';
-        els.hiddenPrice.value = "";
-        els.hiddenBillable.value = "";
-        els.hiddenOnsite.value = "";
-        els.hiddenAreaSqft.value = "";
         return;
       }
 
-      const { billableHours, areaSqft } = computeBillableHours(inputs);
+      const { billableHours } = computeBillableHours(inputs);
       const onsiteHours = billableHours + PRICING.freeBonusHours;
       const { low, high } = computePriceRange(billableHours);
 
-      els.priceText.innerHTML = `Estimated price: <span style="background:rgba(26,26,26,.92);color:#fff;padding:4px 10px;border-radius:999px">${PRICING.currency}${low}–${PRICING.currency}${high}</span>`;
+      els.priceText.textContent = `${PRICING.currency}${low}–${PRICING.currency}${high}`;
       els.priceNote.textContent = "Time-based estimate. Final price depends on condition and level of soiling.";
 
       els.billableTime.innerHTML = `Billable time: <b>${billableHours.toFixed(1)} hrs</b>`;
       els.onsiteTime.innerHTML = `On-site time: <b>${onsiteHours.toFixed(1)} hrs</b> (+30 min FREE)`;
-
-      els.hiddenPrice.value = `${PRICING.currency}${low}–${PRICING.currency}${high}`;
-      els.hiddenBillable.value = billableHours.toFixed(1);
-      els.hiddenOnsite.value = onsiteHours.toFixed(1);
-      els.hiddenAreaSqft.value = Math.round(areaSqft).toString();
     }
 
     els.unitSqft.addEventListener("click", () => { setUnit("sqft"); renderEstimate(); });
     els.unitM2.addEventListener("click", () => { setUnit("m2"); renderEstimate(); });
-
     els.calcBtn.addEventListener("click", renderEstimate);
 
     function openModal(){
@@ -586,6 +679,80 @@
     });
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") closeModal();
+    });
+
+    function fmtDateTime(v){
+      if (!v) return "";
+      try {
+        const d = new Date(v);
+        if (isNaN(d.getTime())) return v;
+        return d.toLocaleString();
+      } catch(e) {
+        return v;
+      }
+    }
+
+    function buildBookingMessage(){
+      const name = (els.bName.value || "").trim();
+      const address = (els.bAddress.value || "").trim();
+      const email = (els.bEmail.value || "").trim();
+      const dt = fmtDateTime(els.bDateTime.value);
+      const equipment = (els.bEquipment.value || "").trim();
+      const cash = (els.bCash.value || "").trim();
+      const pets = (els.bPets.value || "").trim();
+      const priorities = (els.bPriorities.value || "").trim();
+      const notes = (els.bNotes.value || "").trim();
+
+      return `To book the service, can you please provide the following details:\n\n` +
+        `Name: ${name}\n` +
+        `Address: ${address}\n` +
+        `Email: ${email}\n` +
+        `Date and time of service: ${dt}\n` +
+        `Bring our own equipment: ${equipment}\n` +
+        `Pay Cash (Yes/No): ${cash}\n` +
+        `Pets: ${pets}\n` +
+        `Priorities: ${priorities}\n` +
+        `Other Notes: ${notes}\n\n` +
+        `Thank you!`;
+    }
+
+    async function copyToClipboard(text){
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (e) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        ta.style.top = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        let ok = false;
+        try {
+          ok = document.execCommand("copy");
+        } catch(e2) {
+          ok = false;
+        }
+        document.body.removeChild(ta);
+        return ok;
+      }
+    }
+
+    els.copyMsgBtn.addEventListener("click", async () => {
+      const msg = buildBookingMessage();
+      const ok = await copyToClipboard(msg);
+      els.copyStatus.textContent = ok ? "Copied. Open Instagram/Facebook and paste the message." : "Could not copy automatically. Tap “Preview message” and copy manually.";
+    });
+
+    els.previewMsgBtn.addEventListener("click", () => {
+      const msg = buildBookingMessage();
+      try {
+        window.prompt("Copy this booking message:", msg);
+      } catch(e) {
+        alert(msg);
+      }
     });
 
     setUnit("sqft");
