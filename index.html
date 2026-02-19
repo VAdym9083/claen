@@ -392,7 +392,7 @@
         <h2>How pricing works</h2>
         <p class="muted" style="margin:0 0 10px">
           We estimate <b>billable time</b> from bedrooms, bathrooms, kitchens, floors, dining rooms, basement, and area. There is a <b>5-hour minimum</b>.
-          On-site time always includes <b>+30 minutes FREE</b>. Minimum order price is <b>$195</b>.
+          On-site time always includes <b>+30 minutes FREE</b>. Minimum order price is <b>$195</b>.<br><span class="muted" style="font-size:12px">Maximum billable time is <b>10 hours</b> (+30 min FREE on-site).</span>
         </p>
 
         <div class="hr"></div>
@@ -524,6 +524,7 @@
       currency: "$",
       hourlyRate: 39,
       minBillableHours: 5.0,
+            maxBillableHours: 10.0,   // cap billable time
       freeBonusHours: 0.5,
       minOrderPrice: 195,
       baseHours: 1.0,
@@ -600,8 +601,9 @@
     (areaSqft / 1000) * PRICING.hoursPer1000Sqft;
 
   hours = roundUpHalf(hours);
-  const billable = Math.max(PRICING.minBillableHours, hours);
-  return { billableHours: billable, areaSqft };
+  let billable = Math.max(PRICING.minBillableHours, hours);
+      billable = Math.min(PRICING.maxBillableHours, billable);
+      return { billableHours: billable, areaSqft };
 }
 
 
@@ -664,7 +666,11 @@ function setUnit(unit){
       els.priceText.textContent = `${PRICING.currency}${low}–${PRICING.currency}${high}`;
       els.priceNote.textContent = "Time-based estimate. Final price depends on condition and level of soiling.";
 
-      els.billableTime.innerHTML = `Billable time: <b>${billableHours.toFixed(1)} hrs</b>`;
+      
+      if (billableHours >= PRICING.maxBillableHours) {
+        els.priceNote.textContent = "Time-based estimate. Capped at 10 billable hours (+30 min FREE). Final price depends on condition and level of soiling.";
+      }
+els.billableTime.innerHTML = `Billable time: <b>${billableHours.toFixed(1)} hrs</b>`;
       els.onsiteTime.innerHTML = `On-site time: <b>${onsiteHours.toFixed(1)} hrs</b> (+30 min FREE)`;
     }
 
