@@ -334,7 +334,21 @@
         <label>Kitchens</label>
         <input id="kitchens" type="number" min="0" value="1" />
 
-        <div class="unitbar">
+        
+<div class="row">
+  <div>
+    <label>Floors</label>
+    <input id="floors" type="number" min="1" value="1" />
+  </div>
+  <div>
+    <label>Dining rooms</label>
+    <input id="diningRooms" type="number" min="0" value="0" />
+  </div>
+</div>
+
+<label>Basement</label>
+<input id="basements" type="number" min="0" value="0" />
+<div class="unitbar">
           <div>
             <div style="font-weight:950">Area unit</div>
             <div class="muted" id="unitHint">Default: sq ft</div>
@@ -377,14 +391,14 @@
       <aside class="card" id="pricing">
         <h2>How pricing works</h2>
         <p class="muted" style="margin:0 0 10px">
-          We estimate <b>billable time</b> from bedrooms, bathrooms, kitchens, and area. There is a <b>5-hour minimum</b>.
+          We estimate <b>billable time</b> from bedrooms, bathrooms, kitchens, floors, dining rooms, basement, and area. There is a <b>5-hour minimum</b>.
           On-site time always includes <b>+30 minutes FREE</b>. Minimum order price is <b>$195</b>.
         </p>
 
         <div class="hr"></div>
 
         <h2 style="margin-top:0">Quick contact</h2>
-        <div class="muted">Ask a question, уточнити деталі або замовити напряму:</div>
+        <div class="muted">Ask a question, clarify details, or book directly:</div>
         <div class="contactGrid">
           <a class="contactBtn yellow" href="https://www.instagram.com/northstarclean17?igsh=MTMzdjZ6M3hobTBtOQ==" target="_blank" rel="noopener">Message on Instagram</a>
           <a class="contactBtn dark" href="https://www.facebook.com/share/14Yi6YNeais/" target="_blank" rel="noopener">Message on Facebook</a>
@@ -446,8 +460,8 @@
         </div>
       </div>
 
-<label>Побажання та додаткові нотатки</label>
-      <textarea id="bNotes" placeholder="Any extra details, access instructions, parking, etc."></textarea>
+<label>Wishes &amp; additional notes</label>
+      <textarea id="bNotes" placeholder="Any wishes, extra details, access instructions, parking, etc."></textarea>
 
       <div class="row">
         <button class="btn" id="bookBtn" type="button">Book now</button>
@@ -513,10 +527,13 @@
       freeBonusHours: 0.5,
       minOrderPrice: 195,
       baseHours: 1.0,
-      hoursPerBedroom: 0.75,
-      hoursPerBathroom: 1.05,
-      hoursPerKitchen: 1.30,
-      hoursPer1000Sqft: 1.00,
+      hoursPerBedroom: 0.25,
+      hoursPerBathroom: 0.35,
+      hoursPerKitchen: 0.40,
+      hoursPerDiningRoom: 0.20,
+      hoursPerBasement: 0.30,
+      hoursPerExtraFloor: 0.20,
+      hoursPer1000Sqft: 0.40,
       rangeMultiplierHigh: 1.15
     };
 
@@ -526,6 +543,9 @@
       bedrooms: document.getElementById("bedrooms"),
       bathrooms: document.getElementById("bathrooms"),
       kitchens: document.getElementById("kitchens"),
+      floors: document.getElementById("floors"),
+      diningRooms: document.getElementById("diningRooms"),
+      basements: document.getElementById("basements"),
       area: document.getElementById("area"),
       areaLabel: document.getElementById("areaLabel"),
       unitSqft: document.getElementById("unitSqft"),
@@ -546,7 +566,8 @@
       bPhone: document.getElementById("bPhone"),
       bPreferred: document.getElementById("bPreferred"),
       bCash: document.getElementById("bCash"),
-      bPets: document.getElementById("bPets"),      bNotes: document.getElementById("bNotes"),copyStatus: document.getElementById("copyStatus"),
+      bPets: document.getElementById("bPets"),bNotes: document.getElementById("bNotes"),
+      copyStatus: document.getElementById("copyStatus"),
           bookBtn: document.getElementById("bookBtn"),
 };
 
@@ -556,25 +577,33 @@
     function roundUpHalf(n){ return Math.ceil(n * 2) / 2; }
     function areaToSqft(area, unit){ return unit === "m2" ? area * SQFT_PER_M2 : area; }
 
-    function computeBillableHours({ bedrooms, bathrooms, kitchens, area, unit }){
-      bedrooms = clamp(bedrooms);
-      bathrooms = clamp(bathrooms);
-      kitchens = clamp(kitchens);
-      area = clamp(area);
+    function computeBillableHours({ bedrooms, bathrooms, kitchens, floors, diningRooms, basements, area, unit }){
+  bedrooms = clamp(bedrooms);
+  bathrooms = clamp(bathrooms);
+  kitchens = clamp(kitchens);
+  floors = clamp(floors);
+  diningRooms = clamp(diningRooms);
+  basements = clamp(basements);
+  area = clamp(area);
 
-      const areaSqft = areaToSqft(area, unit);
+  const areaSqft = areaToSqft(area, unit);
+  const extraFloors = Math.max(0, floors - 1);
 
-      let hours =
-        PRICING.baseHours +
-        bedrooms * PRICING.hoursPerBedroom +
-        bathrooms * PRICING.hoursPerBathroom +
-        kitchens * PRICING.hoursPerKitchen +
-        (areaSqft / 1000) * PRICING.hoursPer1000Sqft;
+  let hours =
+    PRICING.baseHours +
+    bedrooms * PRICING.hoursPerBedroom +
+    bathrooms * PRICING.hoursPerBathroom +
+    kitchens * PRICING.hoursPerKitchen +
+    diningRooms * PRICING.hoursPerDiningRoom +
+    basements * PRICING.hoursPerBasement +
+    extraFloors * PRICING.hoursPerExtraFloor +
+    (areaSqft / 1000) * PRICING.hoursPer1000Sqft;
 
-      hours = roundUpHalf(hours);
-      const billable = Math.max(PRICING.minBillableHours, hours);
-      return { billableHours: billable, areaSqft };
-    }
+  hours = roundUpHalf(hours);
+  const billable = Math.max(PRICING.minBillableHours, hours);
+  return { billableHours: billable, areaSqft };
+}
+
 
     function computePriceRange(billableHours){
       let base = billableHours * PRICING.hourlyRate;
@@ -585,16 +614,19 @@
     }
 
     function getInputs(){
-      return {
-        bedrooms: Number(els.bedrooms.value),
-        bathrooms: Number(els.bathrooms.value),
-        kitchens: Number(els.kitchens.value),
-        area: Number(els.area.value),
-        unit: currentUnit
-      };
-    }
+  return {
+    bedrooms: Number(els.bedrooms.value),
+    bathrooms: Number(els.bathrooms.value),
+    kitchens: Number(els.kitchens.value),
+    floors: Number(els.floors.value),
+    diningRooms: Number(els.diningRooms.value),
+    basements: Number(els.basements.value),
+    area: Number(els.area.value),
+    unit: currentUnit
+  };
+}
 
-    function setUnit(unit){
+function setUnit(unit){
       currentUnit = unit;
 
       if (unit === "sqft"){
@@ -685,68 +717,73 @@ els.bookBtn.addEventListener("click", async () => {
       }
     }
 
-    function buildBookingMessage(){
-  const name = (els.bName.value || "").trim();
-  const phone = (els.bPhone.value || "").trim();
-  const address = (els.bAddress.value || "").trim();
-  const email = (els.bEmail.value || "").trim();
-  const preferred = (els.bPreferred.value || "").trim();
-  const cash = (els.bCash.value || "").trim();
-  const pets = (els.bPets.value || "").trim();  const notes = (els.bNotes.value || "").trim();
+            function buildBookingMessage(){
+      const name = (els.bName.value || "").trim();
+      const phone = (els.bPhone.value || "").trim();
+      const address = (els.bAddress.value || "").trim();
+      const email = (els.bEmail.value || "").trim();
+      const preferred = (els.bPreferred.value || "").trim();
+      const cash = (els.bCash.value || "").trim();
+      const pets = (els.bPets.value || "").trim();
+      const notes = (els.bNotes.value || "").trim();
 
-  // Include calculator details (rooms + estimated price + hours)
-  const inputs = getInputs();
-  let estimateBlock = "";
+      // Include calculator details (layout + estimated price + hours)
+      const inputs = getInputs();
+      let estimateBlock = "";
 
-  if (inputs.area && inputs.area > 0) {
-    const { billableHours, areaSqft } = computeBillableHours(inputs);
-    const onsiteHours = billableHours + PRICING.freeBonusHours;
-    const { low, high } = computePriceRange(billableHours);
+      if (inputs.area && inputs.area > 0) {
+        const { billableHours, areaSqft } = computeBillableHours(inputs);
+        const onsiteHours = billableHours + PRICING.freeBonusHours;
+        const { low, high } = computePriceRange(billableHours);
 
-    const areaLine = inputs.unit === "m2"
-      ? `${inputs.area} m² (≈ ${Math.round(areaSqft)} sq ft)`
-      : `${inputs.area} sq ft`;
+        const areaLine = inputs.unit === "m2"
+          ? `${inputs.area} m² (≈ ${Math.round(areaSqft)} sq ft)`
+          : `${inputs.area} sq ft`;
 
-    estimateBlock =
+        estimateBlock =
 `--- Estimate from calculator ---
 Bedrooms: ${inputs.bedrooms}
 Bathrooms: ${inputs.bathrooms}
 Kitchens: ${inputs.kitchens}
+Floors: ${inputs.floors}
+Dining rooms: ${inputs.diningRooms}
+Basement: ${inputs.basements}
 Area: ${areaLine}
 Estimated price: ${PRICING.currency}${low}–${PRICING.currency}${high} (minimum ${PRICING.currency}${PRICING.minOrderPrice})
 Billable time: ${billableHours.toFixed(1)} hrs
 On-site time: ${onsiteHours.toFixed(1)} hrs (+30 min FREE)
 
 `;
-  } else {
-    estimateBlock =
+      } else {
+        estimateBlock =
 `--- Estimate from calculator ---
 (Please enter the area and tap "Calculate" first)
 
 `;
-  }
+      }
 
-  return `Hi! I'd like to book a Deep Cleaning.
+      return `Hi! I'd like to book a Deep Cleaning.
 
 ${estimateBlock}` +
-    `Name: ${name}
+        `Name: ${name}
 ` +
-    `Phone: ${phone}
+        `Phone: ${phone}
 ` +
-    `Address: ${address}
+        `Address: ${address}
 ` +
-    `Email: ${email}
+        `Email: ${email}
 ` +
-    `Preferred dates/times: ${preferred}
+        `Preferred dates/times: ${preferred}
 ` +
-    `Pay Cash (Yes/No): ${cash}
+        `Pay Cash (Yes/No): ${cash}
 ` +
-    `Pets: ${pets}
-` +    `Побажання та додаткові нотатки: ${notes}
+        `Pets: ${pets}
+` +
+        `Wishes & additional notes: ${notes}
 
 ` +
-    `Thank you!`;
-}
+        `Thank you!`;
+    }
 
 
     async function copyToClipboard(text){
