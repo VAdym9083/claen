@@ -460,7 +460,7 @@
 </div>
 <section class="card" id="booking" style="margin-top:16px">
 <h2>Booking details</h2>
-<div class="muted">Fill in your details, tap “Copy booking message”, then send it to us on Instagram or Facebook. We’ll call you to confirm and pick the best date. No prepayment required.</div>
+<div class="muted">Fill in your details, tap “Book now”, then send the copied message to us on Instagram or Facebook. We’ll call you to confirm and pick the best date. No prepayment required.</div>
 <div class="row" style="margin-top:6px">
 <div>
 <label>Name</label>
@@ -510,8 +510,8 @@
         </div>
 </div>
 <div class="contactGrid">
-
-
+  <button class="contactBtn yellow" id="igQuickBtn" type="button">Write on Instagram</button>
+  <button class="contactBtn dark" id="fbQuickBtn" type="button">Write on Facebook</button>
 </div>
 <div class="small" id="copyStatus" style="margin-top:10px"></div>
 <div class="hr"></div>
@@ -620,7 +620,7 @@
     bPhone: document.getElementById("bPhone"),
     bAddress: document.getElementById("bAddress"),
     bEmail: document.getElementById("bEmail"),
-    bDateTime: document.getElementById("bDateTime"),
+    bPreferred: document.getElementById("bPreferred"),
     bPayCash: document.getElementById("bPayCash"),
     bPets: document.getElementById("bPets"),
     bNotes: document.getElementById("bNotes"),
@@ -777,14 +777,14 @@
       `Billable time: ${est.billable.toFixed(1)} hrs`,
       `On-site time: ${est.onsite.toFixed(1)} hrs (+30 min FREE)`,
       "",
-      `Name: ${els.bName.value || ""}`,
-      `Phone: ${els.bPhone.value || ""}`,
-      `Address: ${els.bAddress.value || ""}`,
-      `Email: ${els.bEmail.value || ""}`,
-      `Preferred dates/times: ${els.bDateTime.value || ""}`,
-      `Pay Cash (Yes/No): ${els.bPayCash.value || ""}`,
-      `Pets: ${els.bPets.value || ""}`,
-      `Wishes & additional notes: ${els.bNotes.value || ""}`,
+      `Name: ${v(els.bName)}`,
+      `Phone: ${v(els.bPhone)}`,
+      `Address: ${v(els.bAddress)}`,
+      `Email: ${v(els.bEmail)}`,
+      `Preferred dates/times: ${v(els.bPreferred)}`,
+      `Pay Cash (Yes/No): ${v(els.bPayCash)}`,
+      `Pets: ${v(els.bPets)}`,
+      `Wishes & additional notes: ${v(els.bNotes)}`,
       "",
       "Thank you!"
     ].join("\n");
@@ -838,29 +838,15 @@
 
   // -------- Deep links (try app first) --------
   function openAppLink({ androidIntent, fallbackUrl }) {
-  const isAndroid = /Android/i.test(navigator.userAgent);
-
-  // If we can, try to open the native app first (Android). If the page becomes hidden,
-  // we cancel the web fallback so it doesn't open an extra tab for no reason.
-  if (isAndroid && androidIntent) {
-    const timer = setTimeout(() => {
-      window.open(fallbackUrl, "_blank", "noopener,noreferrer");
-    }, 900);
-
-    const onVis = () => {
-      if (document.hidden) {
-        clearTimeout(timer);
-        document.removeEventListener("visibilitychange", onVis);
-      }
-    };
-    document.addEventListener("visibilitychange", onVis);
-
-    window.location.href = androidIntent;
-    return;
+    const isAndroid = /Android/i.test(navigator.userAgent);
+    if (isAndroid && androidIntent) {
+      // Try opening the app (same tab). If it fails, we fall back to the web link.
+      window.location.href = androidIntent;
+      setTimeout(() => { window.location.href = fallbackUrl; }, 700);
+      return;
+    }
+    window.location.href = fallbackUrl;
   }
-
-  window.open(fallbackUrl, "_blank", "noopener,noreferrer");
-}
 
   function openInstagramDM() {
     openAppLink({
@@ -870,10 +856,9 @@
   }
 
   function openFacebookDM() {
-    // Prefer Messenger app on Android
     openAppLink({
       androidIntent: "intent://m.me/Northstarclean17#Intent;scheme=https;package=com.facebook.orca;end",
-      fallbackUrl: "https://www.facebook.com/messages/t/Northstarclean17"
+      fallbackUrl: "https://m.me/Northstarclean17"
     });
   }
 
@@ -962,6 +947,21 @@
 
   els.fbDmBtn?.addEventListener("click", async (e) => {
     e.preventDefault();
+
+  // Quick contact buttons below the main Book button
+  const igQuickBtn = document.getElementById("igQuickBtn");
+  const fbQuickBtn = document.getElementById("fbQuickBtn");
+
+  igQuickBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    openInstagramDM();
+  });
+
+  fbQuickBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    openFacebookDM();
+  });
+
     if (lastBookingMessage) await copyToClipboard(lastBookingMessage);
     openFacebookDM();
   });
@@ -985,7 +985,7 @@
 </div>
 <div class="actions">
 <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" id="igDmBtn" rel="noopener" target="_blank">Message on Instagram</a>
-<a class="contactBtn dark" href="https://www.facebook.com/messages/t/Northstarclean17" id="fbDmBtn" rel="noopener" target="_blank">Message on Facebook</a>
+<a class="contactBtn dark" href="https://m.me/Northstarclean17" id="fbDmBtn" rel="noopener" target="_blank">Message on Facebook</a>
 </div>
 <div class="small" style="margin-top:10px">
           Tip: After opening the chat, tap and hold the message box, then choose <b>Paste</b>.
