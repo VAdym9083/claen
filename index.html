@@ -400,8 +400,8 @@
         <h2 style="margin-top:0">Quick contact</h2>
         <div class="muted">Ask a question, clarify details, or book directly:</div>
         <div class="contactGrid">
-          <a class="contactBtn yellow" href="https://www.instagram.com/northstarclean17?igsh=MTMzdjZ6M3hobTBtOQ==" target="_blank" rel="noopener">Message on Instagram</a>
-          <a class="contactBtn dark" href="https://www.facebook.com/share/14Yi6YNeais/" target="_blank" rel="noopener">Message on Facebook</a>
+          <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Message on Instagram</a>
+          <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Message on Facebook</a>
         </div>
 
         <div class="hr"></div>
@@ -471,8 +471,8 @@
       </div>
 
       <div class="contactGrid">
-        <a class="contactBtn yellow" href="https://www.instagram.com/northstarclean17?igsh=MTMzdjZ6M3hobTBtOQ==" target="_blank" rel="noopener">Open Instagram</a>
-        <a class="contactBtn dark" href="https://www.facebook.com/share/14Yi6YNeais/" target="_blank" rel="noopener">Open Facebook</a>
+        <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Open Instagram</a>
+        <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Open Facebook</a>
       </div>
 
       <div class="small" id="copyStatus" style="margin-top:10px"></div>
@@ -512,10 +512,47 @@
     </div>
   </div>
 
+
+
+<div class="modal" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
+  <div class="modalCard">
+    <div class="modalHeader">
+      <h3 id="bookingTitle">Final step: send your booking message</h3>
+      <button class="closeBtn" id="closeBookingModal" type="button">Close</button>
+    </div>
+    <div class="modalBody">
+      <div class="muted" style="margin-bottom:10px">
+        To complete your booking, send the copied message to us on Instagram or Facebook.
+      </div>
+
+      <div id="modalCopyStatus" class="pill" style="border-color:rgba(245,196,0,.45);background:rgba(245,196,0,.12)">
+        Copying your message…
+      </div>
+
+      <div class="contactGrid" style="margin-top:12px">
+        <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Open Instagram DM</a>
+        <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Open Facebook Messenger</a>
+      </div>
+
+      <div class="row" style="margin-top:12px">
+        <button class="btn" id="copyAgainBtn" type="button">Copy again</button>
+        <button class="btn ghost" id="selectAllBtn" type="button">Select all text</button>
+      </div>
+
+      <div class="small" style="margin-top:10px">
+        Tip: In the chat, tap and hold in the message field, then tap <b>Paste</b>.
+      </div>
+
+      <label style="margin-top:12px">Your message</label>
+      <textarea id="modalMessage" readonly></textarea>
+    </div>
+  </div>
+</div>
+
   <div class="stickyBar" aria-hidden="true">
     <div class="inner">
-      <a class="contactBtn yellow" href="https://www.instagram.com/northstarclean17?igsh=MTMzdjZ6M3hobTBtOQ==" target="_blank" rel="noopener">Instagram</a>
-      <a class="contactBtn dark" href="https://www.facebook.com/share/14Yi6YNeais/" target="_blank" rel="noopener">Facebook</a>
+      <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Instagram</a>
+      <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Facebook</a>
     </div>
   </div>
 
@@ -556,6 +593,13 @@
       includedBtn: document.getElementById("includedBtn"),
       includedModal: document.getElementById("includedModal"),
       closeModal: document.getElementById("closeModal"),
+
+bookingModal: document.getElementById("bookingModal"),
+closeBookingModal: document.getElementById("closeBookingModal"),
+modalCopyStatus: document.getElementById("modalCopyStatus"),
+modalMessage: document.getElementById("modalMessage"),
+copyAgainBtn: document.getElementById("copyAgainBtn"),
+selectAllBtn: document.getElementById("selectAllBtn"),
       priceText: document.getElementById("priceText"),
       priceNote: document.getElementById("priceNote"),
       billableTime: document.getElementById("billableTime"),
@@ -675,23 +719,55 @@ els.billableTime.innerHTML = `Billable time: <b>${billableHours.toFixed(1)} hrs<
     }
 
     els.unitSqft.addEventListener("click", () => { 
+
+function openBookingModal(){
+  els.bookingModal.classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+function closeBookingModal(){
+  els.bookingModal.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
 els.bookBtn.addEventListener("click", async () => {
   const msg = buildBookingMessage();
-  const ok = await copyToClipboard(msg);
 
+  // Fill modal + attempt to copy
+  els.modalMessage.value = msg;
+  els.modalCopyStatus.textContent = "Copying your message…";
+  openBookingModal();
+
+  const ok = await copyToClipboard(msg);
   if (ok) {
-    els.copyStatus.textContent = "Message copied. Open Instagram or Facebook below and paste it.";
+    els.modalCopyStatus.textContent = "✅ Copied. Now open Instagram or Facebook and paste the message.";
   } else {
-    els.copyStatus.textContent = "Could not copy automatically. Copy the message from the prompt, then send it on Instagram/Facebook.";
-    try {
-      window.prompt("Copy this booking message:", msg);
-    } catch (e) {
-      alert(msg);
-    }
+    els.modalCopyStatus.textContent = "Could not copy automatically. Tap “Copy again” or select the text below and copy it.";
+    // Keep the message visible so user can still copy manually.
   }
 });
 
-    setUnit("sqft"); renderEstimate(); });
+els.copyAgainBtn.addEventListener("click", async () => {
+  const msg = els.modalMessage.value || "";
+  if (!msg) return;
+  els.modalCopyStatus.textContent = "Copying your message…";
+  const ok = await copyToClipboard(msg);
+  els.modalCopyStatus.textContent = ok
+    ? "✅ Copied. Now open Instagram or Facebook and paste the message."
+    : "Could not copy automatically. Select the text below and copy it.";
+});
+
+els.selectAllBtn.addEventListener("click", () => {
+  els.modalMessage.focus();
+  els.modalMessage.select();
+  els.modalCopyStatus.textContent = "Selected. Copy it (or paste directly if your phone shows Paste).";
+});
+
+els.closeBookingModal.addEventListener("click", closeBookingModal);
+els.bookingModal.addEventListener("click", (e) => {
+  if (e.target === els.bookingModal) closeBookingModal();
+});
+
+setUnit("sqft"); renderEstimate(); });
     els.unitM2.addEventListener("click", () => { setUnit("m2"); renderEstimate(); });
     els.calcBtn.addEventListener("click", renderEstimate);
 
@@ -709,7 +785,7 @@ els.bookBtn.addEventListener("click", async () => {
       if (e.target === els.includedModal) closeModal();
     });
     document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape") closeModal();
+      if (e.key === "Escape") { closeModal(); closeBookingModal(); }
     });
 
     function fmtDateTime(v){
