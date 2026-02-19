@@ -473,8 +473,8 @@
         <h2 style="margin-top:0">Quick contact</h2>
         <div class="muted">Ask a question, clarify details, or book directly:</div>
         <div class="contactGrid">
-          <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Write on Instagram</a>
-          <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Write on Facebook</a>
+          <a class="contactBtn yellow" id="writeIgBtn" href="https://ig.me/m/northstarclean17">Write on Instagram</a>
+          <a class="contactBtn dark" id="writeFbBtn" href="https://www.facebook.com/messages/t/Northstarclean17">Write on Facebook</a>
         </div>
 
         <div class="hr"></div>
@@ -544,8 +544,8 @@
       </div>
 
       <div class="contactGrid">
-        <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Write on Instagram</a>
-        <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Write on Facebook</a>
+        <a class="contactBtn yellow" id="writeIgBtn" href="https://ig.me/m/northstarclean17">Write on Instagram</a>
+        <a class="contactBtn dark" id="writeFbBtn" href="https://www.facebook.com/messages/t/Northstarclean17">Write on Facebook</a>
       </div>
 
       <div class="small" id="copyStatus" style="margin-top:10px"></div>
@@ -587,12 +587,48 @@
 
   <div class="stickyBar" aria-hidden="true">
     <div class="inner">
-      <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Write on Instagram</a>
-      <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Write on Facebook</a>
+      <a class="contactBtn yellow" id="writeIgBtn" href="https://ig.me/m/northstarclean17">Write on Instagram</a>
+      <a class="contactBtn dark" id="writeFbBtn" href="https://www.facebook.com/messages/t/Northstarclean17">Write on Facebook</a>
     </div>
   </div>
 
-  <script>
+  
+
+  <div class="modal" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
+    <div class="modalCard">
+      <div class="modalHeader">
+        <h3 id="bookingTitle">Final step: send your booking message</h3>
+        <button class="closeBtn" id="closeBookingModal" type="button">Close</button>
+      </div>
+      <div class="modalBody">
+        <div class="muted" style="margin-bottom:10px">
+          To finalize the booking, please send the copied message to us on Instagram or Facebook.
+        </div>
+
+        <div class="copyRow">
+          <div id="bookingCopyStatus" class="statusOk">✅ Message copied to clipboard</div>
+          <button class="miniBtn" id="copyAgainBtn" type="button">Copy again</button>
+        </div>
+
+        <div class="actions">
+          <a class="contactBtn yellow" id="writeIgBtn" href="https://ig.me/m/northstarclean17">Write on Instagram</a>
+          <a class="contactBtn dark" id="writeFbBtn" href="https://www.facebook.com/messages/t/Northstarclean17">Write on Facebook</a>
+        </div>
+
+        <div class="small" style="margin-top:10px">
+          Tip: After opening the chat, tap and hold the message box, then choose <b>Paste</b>.
+        </div>
+
+        <textarea class="msgBox" id="bookingMsgBox" readonly></textarea>
+      </div>
+    </div>
+  </div>
+
+
+
+<script>
+
+
     const PRICING = {
       currency: "$",
       hourlyRate: 39,
@@ -646,6 +682,8 @@
       bookingModal: document.getElementById("bookingModal"),
       closeBookingModal: document.getElementById("closeBookingModal"),
       copyAgainBtn: document.getElementById("copyAgainBtn"),
+  writeIgBtn: document.getElementById("writeIgBtn"),
+  writeFbBtn: document.getElementById("writeFbBtn"),
       bookingCopyStatus: document.getElementById("bookingCopyStatus"),
       bookingMsgBox: document.getElementById("bookingMsgBox"),
 };
@@ -874,7 +912,28 @@ ${estimateBlock}` +
   }
 }
 
-function openBookingModal(message, copiedOk){
+async function copyToClipboardWithTimeout(text, timeoutMs=800){
+  try{
+    return await Promise.race([
+      copyToClipboard(text),
+      new Promise(resolve=>setTimeout(()=>resolve(false), timeoutMs))
+    ]);
+  }catch(e){
+    return false;
+  }
+}
+
+function openExternal(url){
+  const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  if(isMobile){
+    window.location.href = url;
+    return;
+  }
+  const w = window.open(url, "_blank", "noopener,noreferrer");
+  if(!w){ window.location.href = url; }
+}
+
+function openBookingModal(msg, copiedOk, isCopying=false){
   els.bookingMsgBox.value = message;
   els.bookingCopyStatus.className = copiedOk ? "statusOk" : "statusBad";
   els.bookingCopyStatus.textContent = copiedOk
@@ -886,6 +945,18 @@ function openBookingModal(message, copiedOk){
   try { els.bookingMsgBox.scrollTop = 0; } catch(e){}
 }
 
+function updateBookingCopyStatus(ok, msg){
+  if(!els.bookingCopyStatus) return;
+  els.bookingMsgBox.value = msg;
+  if(ok){
+    els.bookingCopyStatus.textContent = "✅ Message copied to clipboard";
+    els.bookingCopyStatus.className = "statusOk";
+  }else{
+    els.bookingCopyStatus.textContent = "📋 Could not auto-copy. Please tap \"Copy again\" (or manually copy from the box below).";
+    els.bookingCopyStatus.className = "statusWarn";
+  }
+}
+
 function closeBookingModal(){
   els.bookingModal.classList.remove("open");
   document.body.style.overflow = "";
@@ -893,6 +964,9 @@ function closeBookingModal(){
 
 // Close booking modal
 els.closeBookingModal.addEventListener("click", closeBookingModal);
+
+if(els.writeIgBtn){ els.writeIgBtn.addEventListener("click", (e)=>{ e.preventDefault(); openExternal(els.writeIgBtn.getAttribute("href")); }); }
+if(els.writeFbBtn){ els.writeFbBtn.addEventListener("click", (e)=>{ e.preventDefault(); openExternal(els.writeFbBtn.getAttribute("href")); }); }
 els.bookingModal.addEventListener("click", (e) => {
   if (e.target === els.bookingModal) closeBookingModal();
 });
@@ -936,37 +1010,9 @@ document.addEventListener("keydown", (e) => {
 
 setUnit("sqft");
     renderEstimate();
-  </script>
+  
 
-  <div class="modal" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
-    <div class="modalCard">
-      <div class="modalHeader">
-        <h3 id="bookingTitle">Final step: send your booking message</h3>
-        <button class="closeBtn" id="closeBookingModal" type="button">Close</button>
-      </div>
-      <div class="modalBody">
-        <div class="muted" style="margin-bottom:10px">
-          To finalize the booking, please send the copied message to us on Instagram or Facebook.
-        </div>
-
-        <div class="copyRow">
-          <div id="bookingCopyStatus" class="statusOk">✅ Message copied to clipboard</div>
-          <button class="miniBtn" id="copyAgainBtn" type="button">Copy again</button>
-        </div>
-
-        <div class="actions">
-          <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Write on Instagram</a>
-          <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Write on Facebook</a>
-        </div>
-
-        <div class="small" style="margin-top:10px">
-          Tip: After opening the chat, tap and hold the message box, then choose <b>Paste</b>.
-        </div>
-
-        <textarea class="msgBox" id="bookingMsgBox" readonly></textarea>
-      </div>
-    </div>
-  </div>
+</script>
 
 </body>
 </html>
