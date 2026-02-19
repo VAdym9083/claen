@@ -394,39 +394,78 @@
 
         <div class="muted" style="margin-bottom:8px"><b>Minimum order</b></div>
         <div class="heroPill" style="display:inline-block;margin-bottom:8px">Starting at <b>$195 for 5 hours + 30 min. FREE</b></div>
-        <div class="muted">To confirm your booking and choose the most convenient date/time, we will call you. <b>No prepayment required.</b></div>
-        <div class="muted"></div>
+        <div class="muted">To confirm your booking and choose the most convenient dates, we will give you a quick call. <b>No prepayment required.</b></div>
       </aside>
     </div>
 
     <section class="card" id="booking" style="margin-top:16px">
-      <h2>Booking & confirmation</h2>
-      <div class="muted">
-        To confirm your booking and choose the most convenient date/time, we will call you.
-        <b>No prepayment required.</b>
+      <h2>Booking details</h2>
+      <div class="muted">Fill in your details, tap “Copy booking message”, then send it to us on Instagram or Facebook. We’ll call you to confirm and pick the best date. No prepayment required.</div>
+
+      <div class="row" style="margin-top:6px">
+        <div>
+          <label>Name</label>
+          <input id="bName" placeholder="Name" />
+        </div>
+        <div>
+          <label>Email</label>
+          <input id="bEmail" type="email" placeholder="Email" />
+        </div>
       </div>
+
+      <label>Address</label>
+      <input id="bAddress" placeholder="Address" />
+
+      <div class="row">
+        <div>
+          <label>Phone</label>
+          <input id="bPhone" type="tel" placeholder="Phone number" />
+        </div>
+        <div>
+          <label>Preferred dates/times</label>
+          <input id="bPreferred" placeholder="e.g., Sat 10–12 or Mon evening" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Pay Cash (Yes/No)</label>
+          <select id="bCash">
+            <option value="">Select</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+        </div>
+        <div>
+          <label>Pets</label>
+          <select id="bPets">
+            <option value="">Select</option>
+            <option>No</option>
+            <option>Yes</option>
+          </select>
+        </div>
+      </div>
+
+      <label>Priorities</label>
+      <textarea id="bPriorities" placeholder="What should we focus on? (kitchen, bathroom, floors, etc.)"></textarea>
+
+      <label>Other Notes</label>
+      <textarea id="bNotes" placeholder="Any extra details, access instructions, parking, etc."></textarea>
+
+      <div class="row">
+        <button class="btn" id="copyMsgBtn" type="button">Copy booking message</button>
+        <button class="btn ghost" id="previewMsgBtn" type="button">Preview message</button>
+      </div>
+
+      <div class="contactGrid">
+        <a class="contactBtn yellow" href="https://www.instagram.com/northstarclean17?igsh=MTMzdjZ6M3hobTBtOQ==" target="_blank" rel="noopener">Open Instagram</a>
+        <a class="contactBtn dark" href="https://www.facebook.com/share/14Yi6YNeais/" target="_blank" rel="noopener">Open Facebook</a>
+      </div>
+
+      <div class="small" id="copyStatus" style="margin-top:10px"></div>
 
       <div class="hr"></div>
-
-      <div class="muted" style="margin-bottom:8px">
-        To request a booking, please message us on Instagram or Facebook with:
-      </div>
-
-      <ul style="margin:0 0 12px 18px; color: rgba(18,18,18,.78); line-height:1.45">
-        <li><b>Name</b></li>
-        <li><b>Address</b></li>
-        <li><b>Email</b></li>
-        <li><b>Phone number</b></li>
-        <li><b>Pay Cash</b> (Yes/No)</li>
-        <li><b>Pets</b></li>
-        <li><b>Priorities</b></li>
-        <li><b>Other Notes</b></li>
-      </ul>
-
-      <div class="muted">
-        Instagram: <a href="https://www.instagram.com/northstarclean17?igsh=MTMzdjZ6M3hobTBtOQ==" target="_blank" rel="noopener">https://www.instagram.com/northstarclean17?igsh=MTMzdjZ6M3hobTBtOQ==</a><br/>
-        Facebook: <a href="https://www.facebook.com/share/14Yi6YNeais/" target="_blank" rel="noopener">https://www.facebook.com/share/14Yi6YNeais/</a>
-      </div>
+      <div class="muted"><b>After you send the message:</b> we’ll call you to confirm the booking and choose the most convenient date/time. <b>No prepayment required.</b></div>
     </section>
   </div>
 
@@ -456,11 +495,18 @@
             <img src="assets/deep-cleaning-general-spaces.jpg" alt="Deep cleaning general spaces tasks" loading="lazy" />
           </div>
         </div>
-        <div class="small" style="margin-top:12px"></div>
-      </div>
+        </div>
     </div>
   </div>
-<script>
+
+  <div class="stickyBar" aria-hidden="true">
+    <div class="inner">
+      <a class="contactBtn yellow" href="https://www.instagram.com/northstarclean17?igsh=MTMzdjZ6M3hobTBtOQ==" target="_blank" rel="noopener">Instagram</a>
+      <a class="contactBtn dark" href="https://www.facebook.com/share/14Yi6YNeais/" target="_blank" rel="noopener">Facebook</a>
+    </div>
+  </div>
+
+  <script>
     const PRICING = {
       currency: "$",
       hourlyRate: 39,
@@ -495,6 +541,18 @@
       billableTime: document.getElementById("billableTime"),
       onsiteTime: document.getElementById("onsiteTime"),
 
+      bName: document.getElementById("bName"),
+      bAddress: document.getElementById("bAddress"),
+      bEmail: document.getElementById("bEmail"),
+      bPhone: document.getElementById("bPhone"),
+      bPreferred: document.getElementById("bPreferred"),
+      bCash: document.getElementById("bCash"),
+      bPets: document.getElementById("bPets"),
+      bPriorities: document.getElementById("bPriorities"),
+      bNotes: document.getElementById("bNotes"),
+      copyMsgBtn: document.getElementById("copyMsgBtn"),
+      previewMsgBtn: document.getElementById("previewMsgBtn"),
+      copyStatus: document.getElementById("copyStatus"),
     };
 
     const SQFT_PER_M2 = 10.76391041671;
@@ -603,6 +661,86 @@
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") closeModal();
     });
+
+    function fmtDateTime(v){
+      if (!v) return "";
+      try {
+        const d = new Date(v);
+        if (isNaN(d.getTime())) return v;
+        return d.toLocaleString();
+      } catch(e) {
+        return v;
+      }
+    }
+
+    function buildBookingMessage(){
+      const name = (els.bName.value || "").trim();
+      const phone = (els.bPhone.value || "").trim();
+      const address = (els.bAddress.value || "").trim();
+      const email = (els.bEmail.value || "").trim();
+      const preferred = (els.bPreferred.value || "").trim();
+      const cash = (els.bCash.value || "").trim();
+      const pets = (els.bPets.value || "").trim();
+      const priorities = (els.bPriorities.value || "").trim();
+      const notes = (els.bNotes.value || "").trim();
+
+      return `Hi! I'd like to book a Deep Cleaning.
+
+` +
+        `Name: ${name}
+` +
+        `Phone: ${phone}
+` +
+        `Address: ${address}
+` +
+        `Email: ${email}
+` +
+        `Preferred dates/times: ${preferred}
+` +
+        `Pay Cash (Yes/No): ${cash}
+` +
+        `Pets: ${pets}
+` +
+        `Priorities: ${priorities}
+` +
+        `Other Notes: ${notes}
+
+` +
+        `Thank you!`;
+    }
+
+    async function copyToClipboard(text){
+      try {
+        await navigator.clipboard.writeText(text);
+        return true;
+      } catch (e) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        ta.style.top = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        let ok = false;
+        try {
+          ok = document.execCommand("copy");
+        } catch(e2) {
+          ok = false;
+        }
+        document.body.removeChild(ta);
+        return ok;
+      }
+    }
+
+    els.copyMsgBtn.addEventListener("click", async () => {
+      const msg = buildBookingMessage();
+      const ok = await copyToClipboard(msg);
+      els.copyStatus.textContent = ok ? "Copied. Open Instagram/Facebook and paste the message." : "Could not copy automatically. Tap “Preview message” and copy manually.";
+    });
+
+    els.previewMsgBtn.addEventListener("click", () => {
+      const msg = buildBookingMessage();
       try {
         window.prompt("Copy this booking message:", msg);
       } catch(e) {
