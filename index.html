@@ -691,40 +691,73 @@ els.bookBtn.addEventListener("click", async () => {
     }
 
     function buildBookingMessage(){
-      const name = (els.bName.value || "").trim();
-      const phone = (els.bPhone.value || "").trim();
-      const address = (els.bAddress.value || "").trim();
-      const email = (els.bEmail.value || "").trim();
-      const preferred = (els.bPreferred.value || "").trim();
-      const cash = (els.bCash.value || "").trim();
-      const pets = (els.bPets.value || "").trim();
-      const priorities = (els.bPriorities.value || "").trim();
-      const notes = (els.bNotes.value || "").trim();
+  const name = (els.bName.value || "").trim();
+  const phone = (els.bPhone.value || "").trim();
+  const address = (els.bAddress.value || "").trim();
+  const email = (els.bEmail.value || "").trim();
+  const preferred = (els.bPreferred.value || "").trim();
+  const cash = (els.bCash.value || "").trim();
+  const pets = (els.bPets.value || "").trim();
+  const priorities = (els.bPriorities.value || "").trim();
+  const notes = (els.bNotes.value || "").trim();
 
-      return `Hi! I'd like to book a Deep Cleaning.
+  // Include calculator details (rooms + estimated price + hours)
+  const inputs = getInputs();
+  let estimateBlock = "";
+
+  if (inputs.area && inputs.area > 0) {
+    const { billableHours, areaSqft } = computeBillableHours(inputs);
+    const onsiteHours = billableHours + PRICING.freeBonusHours;
+    const { low, high } = computePriceRange(billableHours);
+
+    const areaLine = inputs.unit === "m2"
+      ? `${inputs.area} m² (≈ ${Math.round(areaSqft)} sq ft)`
+      : `${inputs.area} sq ft`;
+
+    estimateBlock =
+`--- Estimate from calculator ---
+Bedrooms: ${inputs.bedrooms}
+Bathrooms: ${inputs.bathrooms}
+Kitchens: ${inputs.kitchens}
+Area: ${areaLine}
+Estimated price: ${PRICING.currency}${low}–${PRICING.currency}${high} (minimum ${PRICING.currency}${PRICING.minOrderPrice})
+Billable time: ${billableHours.toFixed(1)} hrs
+On-site time: ${onsiteHours.toFixed(1)} hrs (+30 min FREE)
+
+`;
+  } else {
+    estimateBlock =
+`--- Estimate from calculator ---
+(Please enter the area and tap "Calculate" first)
+
+`;
+  }
+
+  return `Hi! I'd like to book a Deep Cleaning.
+
+${estimateBlock}` +
+    `Name: ${name}
+` +
+    `Phone: ${phone}
+` +
+    `Address: ${address}
+` +
+    `Email: ${email}
+` +
+    `Preferred dates/times: ${preferred}
+` +
+    `Pay Cash (Yes/No): ${cash}
+` +
+    `Pets: ${pets}
+` +
+    `Priorities: ${priorities}
+` +
+    `Other Notes: ${notes}
 
 ` +
-        `Name: ${name}
-` +
-        `Phone: ${phone}
-` +
-        `Address: ${address}
-` +
-        `Email: ${email}
-` +
-        `Preferred dates/times: ${preferred}
-` +
-        `Pay Cash (Yes/No): ${cash}
-` +
-        `Pets: ${pets}
-` +
-        `Priorities: ${priorities}
-` +
-        `Other Notes: ${notes}
+    `Thank you!`;
+}
 
-` +
-        `Thank you!`;
-    }
 
     async function copyToClipboard(text){
       try {
