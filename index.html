@@ -446,10 +446,7 @@
         </div>
       </div>
 
-      <label>Priorities</label>
-      <textarea id="bPriorities" placeholder="What should we focus on? (kitchen, bathroom, floors, etc.)"></textarea>
-
-      <label>Other Notes</label>
+<label>Побажання та додаткові нотатки</label>
       <textarea id="bNotes" placeholder="Any extra details, access instructions, parking, etc."></textarea>
 
       <div class="row">
@@ -549,9 +546,7 @@
       bPhone: document.getElementById("bPhone"),
       bPreferred: document.getElementById("bPreferred"),
       bCash: document.getElementById("bCash"),
-      bPets: document.getElementById("bPets"),
-      bPriorities: document.getElementById("bPriorities"),
-      bNotes: document.getElementById("bNotes"),copyStatus: document.getElementById("copyStatus"),
+      bPets: document.getElementById("bPets"),      bNotes: document.getElementById("bNotes"),copyStatus: document.getElementById("copyStatus"),
           bookBtn: document.getElementById("bookBtn"),
 };
 
@@ -697,9 +692,7 @@ els.bookBtn.addEventListener("click", async () => {
   const email = (els.bEmail.value || "").trim();
   const preferred = (els.bPreferred.value || "").trim();
   const cash = (els.bCash.value || "").trim();
-  const pets = (els.bPets.value || "").trim();
-  const priorities = (els.bPriorities.value || "").trim();
-  const notes = (els.bNotes.value || "").trim();
+  const pets = (els.bPets.value || "").trim();  const notes = (els.bNotes.value || "").trim();
 
   // Include calculator details (rooms + estimated price + hours)
   const inputs = getInputs();
@@ -749,10 +742,7 @@ ${estimateBlock}` +
     `Pay Cash (Yes/No): ${cash}
 ` +
     `Pets: ${pets}
-` +
-    `Priorities: ${priorities}
-` +
-    `Other Notes: ${notes}
+` +    `Побажання та додаткові нотатки: ${notes}
 
 ` +
     `Thank you!`;
