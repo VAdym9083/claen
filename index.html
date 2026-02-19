@@ -1,18 +1,19 @@
-<!DOCTYPE html>
-
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width,initial-scale=1" name="viewport"/>
-<title>Deep Cleaning Price Calculator</title>
-<script type="text/javascript">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Deep Cleaning Price Calculator</title>
+
+  <script type="text/javascript">
     (function(c,l,a,r,i,t,y){
         c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
         t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
         y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
     })(window, document, "clarity", "script", "vj9i1sfm9b");
   </script>
-<style>
+
+  <style>
     :root{
       --bg:#f5f7fb;
       --card:#ffffff;
@@ -373,626 +374,590 @@
 
   </style>
 </head>
+
 <body>
-<div class="wrap">
-<section class="hero">
-<div class="badge">Toronto &amp; GTA • Deep Cleaning • +30 min FREE</div>
-<h1>Deep Cleaning Price Calculator</h1>
-<p class="sub">Time-based estimate with a clear minimum. Minimum order is <b>$195</b> for <b>5 hours</b>, plus <b>30 minutes FREE</b> on top.</p>
-<div class="heroRow">
-<div class="heroPill">Minimum: <b>$195 / 5 hours</b></div>
-<div class="heroPill">Bonus: <b>+30 minutes FREE</b></div>
-<div class="heroPill">Area unit: <b>sq ft</b> (default)</div>
-</div>
-</section>
-<div class="grid">
-<section class="card" id="calculator">
-<h2>Estimate</h2>
-<div class="muted">Enter details and tap “Calculate”.</div>
+  <div class="wrap">
+    <section class="hero">
+      <div class="badge">Toronto & GTA • Deep Cleaning • +30 min FREE</div>
+      <h1>Deep Cleaning Price Calculator</h1>
+      <p class="sub">Time-based estimate with a clear minimum. Minimum order is <b>$195</b> for <b>5 hours</b>, plus <b>30 minutes FREE</b> on top.</p>
+      <div class="heroRow">
+        <div class="heroPill">Minimum: <b>$195 / 5 hours</b></div>
+        <div class="heroPill">Bonus: <b>+30 minutes FREE</b></div>
+        <div class="heroPill">Area unit: <b>sq ft</b> (default)</div>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card" id="calculator">
+        <h2>Estimate</h2>
+        <div class="muted">Enter details and tap “Calculate”.</div>
+
+        <div class="row">
+          <div>
+            <label>Bedrooms</label>
+            <input id="bedrooms" type="number" min="0" value="1" />
+          </div>
+          <div>
+            <label>Bathrooms</label>
+            <input id="bathrooms" type="number" min="0" value="1" />
+          </div>
+        </div>
+
+        <label>Kitchens</label>
+        <input id="kitchens" type="number" min="0" value="1" />
+
+        
 <div class="row">
-<div>
-<label>Bedrooms</label>
-<input id="bedrooms" min="0" type="number" value="1"/>
+  <div>
+    <label>Floors</label>
+    <input id="floors" type="number" min="1" value="1" />
+  </div>
+  <div>
+    <label>Dining rooms</label>
+    <input id="diningRooms" type="number" min="0" value="0" />
+  </div>
 </div>
-<div>
-<label>Bathrooms</label>
-<input id="bathrooms" min="0" type="number" value="1"/>
-</div>
-</div>
-<label>Kitchens</label>
-<input id="kitchens" min="0" type="number" value="1"/>
-<div class="row">
-<div>
-<label>Floors</label>
-<input id="floors" min="1" type="number" value="1"/>
-</div>
-<div>
-<label>Dining rooms</label>
-<input id="diningRooms" min="0" type="number" value="0"/>
-</div>
-</div>
+
 <label>Basement</label>
-<input id="basements" min="0" type="number" value="0"/>
+<input id="basements" type="number" min="0" value="0" />
 <div class="unitbar">
-<div>
-<div style="font-weight:950">Area unit</div>
-<div class="muted" id="unitHint">Default: sq ft</div>
-</div>
-<div aria-label="Area unit" class="seg" role="tablist">
-<button aria-selected="true" class="active" id="unitSqft" type="button">sq ft</button>
-<button aria-selected="false" id="unitM2" type="button">m²</button>
-</div>
-</div>
-<label id="areaLabel">Total area (sq ft)</label>
-<input id="area" min="0" placeholder="e.g., 800" type="number" value="800"/>
-<button class="btn" id="calcBtn" type="button">Calculate</button>
-<button class="btn secondary" id="includedBtn" type="button">What’s included in deep cleaning?</button>
-<div aria-live="polite" class="result">
-<div class="priceTop">
-<div class="priceLabel">Estimated price</div>
-<div class="priceValue" id="priceText">$—</div>
-</div>
-<div class="note" id="priceNote">Time-based estimate. Final price depends on condition and level of soiling.</div>
-<div class="timebox">
-<div class="pill" id="billableTime">Billable time: <b>—</b></div>
-<div class="pill" id="onsiteTime">On-site time: <b>—</b></div>
-</div>
-<div class="ctaRow">
+          <div>
+            <div style="font-weight:950">Area unit</div>
+            <div class="muted" id="unitHint">Default: sq ft</div>
+          </div>
+          <div class="seg" role="tablist" aria-label="Area unit">
+            <button id="unitSqft" class="active" type="button" aria-selected="true">sq ft</button>
+            <button id="unitM2" type="button" aria-selected="false">m²</button>
+          </div>
+        </div>
 
+        <label id="areaLabel">Total area (sq ft)</label>
+        <input id="area" type="number" min="0" value="800" placeholder="e.g., 800" />
 
-</div>
-</div>
-<div class="small" style="margin-top:10px">
+        <button class="btn" id="calcBtn" type="button">Calculate</button>
+        <button class="btn secondary" id="includedBtn" type="button">What’s included in deep cleaning?</button>
+
+        <div class="result" aria-live="polite">
+          <div class="priceTop">
+            <div class="priceLabel">Estimated price</div>
+            <div class="priceValue" id="priceText">$—</div>
+          </div>
+          <div class="note" id="priceNote">Time-based estimate. Final price depends on condition and level of soiling.</div>
+
+          <div class="timebox">
+            <div class="pill" id="billableTime">Billable time: <b>—</b></div>
+            <div class="pill" id="onsiteTime">On-site time: <b>—</b></div>
+          </div>
+
+          <div class="ctaRow">
+            <a class="contactBtn dark" href="#booking">Get an exact quote</a>
+            <a class="contactBtn" href="#pricing">How pricing works</a>
+          </div>
+        </div>
+
+        <div class="small" style="margin-top:10px">
           * This is an estimate based on size and layout. Deep cleaning complexity can change the final time and price.
         </div>
-</section>
-<aside class="card" id="pricing">
-<h2>How pricing works</h2>
-<p class="muted" style="margin:0 0 10px">
+      </section>
+
+      <aside class="card" id="pricing">
+        <h2>How pricing works</h2>
+        <p class="muted" style="margin:0 0 10px">
           We estimate <b>billable time</b> from bedrooms, bathrooms, kitchens, floors, dining rooms, basement, and area. There is a <b>5-hour minimum</b>.
-          On-site time always includes <b>+30 minutes FREE</b>. Minimum order price is <b>$195</b>.<br/><span class="muted" style="font-size:12px">Maximum billable time is <b>10 hours</b> (+30 min FREE on-site).</span>
-</p>
-<div class="hr"></div>
-<div class="muted" style="margin-bottom:8px"><b>Minimum order</b></div>
-<div class="heroPill" style="display:inline-block;margin-bottom:8px">Starting at <b>$195 for 5 hours + 30 min. FREE</b></div>
-<div class="muted">To confirm your booking and choose the most convenient dates, we will give you a quick call. <b>No prepayment required.</b></div>
-</aside>
-</div>
-<section class="card" id="booking" style="margin-top:16px">
-<h2>Booking details</h2>
-<div class="muted">Fill in your details, tap “Book now”, then send the copied message to us on Instagram or Facebook. We’ll call you to confirm and pick the best date. No prepayment required.</div>
-<div class="row" style="margin-top:6px">
-<div>
-<label>Name</label>
-<input id="bName" placeholder="Name"/>
-</div>
-<div>
-<label>Email</label>
-<input id="bEmail" placeholder="Email" type="email"/>
-</div>
-</div>
-<label>Address</label>
-<input id="bAddress" placeholder="Address"/>
-<div class="row">
-<div>
-<label>Phone</label>
-<input id="bPhone" placeholder="Phone number" type="tel"/>
-</div>
-<div>
-<label>Preferred dates/times</label>
-<input id="bPreferred" placeholder="e.g., Sat 10–12 or Mon evening"/>
-</div>
-</div>
-<div class="row">
-<div>
-<label>Pay Cash (Yes/No)</label>
-<select id="bCash">
-<option value="">Select</option>
-<option>Yes</option>
-<option>No</option>
-</select>
-</div>
-<div>
-<label>Pets</label>
-<select id="bPets">
-<option value="">Select</option>
-<option>No</option>
-<option>Yes</option>
-</select>
-</div>
-</div>
+          On-site time always includes <b>+30 minutes FREE</b>. Minimum order price is <b>$195</b>.<br><span class="muted" style="font-size:12px">Maximum billable time is <b>10 hours</b> (+30 min FREE on-site).</span>
+        </p>
+
+        <div class="hr"></div>
+
+        <h2 style="margin-top:0">Quick contact</h2>
+        <div class="muted">Ask a question, clarify details, or book directly:</div>
+        <div class="contactGrid">
+          <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Write on Instagram</a>
+          <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Write on Facebook</a>
+        </div>
+
+        <div class="hr"></div>
+
+        <div class="muted" style="margin-bottom:8px"><b>Minimum order</b></div>
+        <div class="heroPill" style="display:inline-block;margin-bottom:8px">Starting at <b>$195 for 5 hours + 30 min. FREE</b></div>
+        <div class="muted">To confirm your booking and choose the most convenient dates, we will give you a quick call. <b>No prepayment required.</b></div>
+      </aside>
+    </div>
+
+    <section class="card" id="booking" style="margin-top:16px">
+      <h2>Booking details</h2>
+      <div class="muted">Fill in your details, tap “Copy booking message”, then send it to us on Instagram or Facebook. We’ll call you to confirm and pick the best date. No prepayment required.</div>
+
+      <div class="row" style="margin-top:6px">
+        <div>
+          <label>Name</label>
+          <input id="bName" placeholder="Name" />
+        </div>
+        <div>
+          <label>Email</label>
+          <input id="bEmail" type="email" placeholder="Email" />
+        </div>
+      </div>
+
+      <label>Address</label>
+      <input id="bAddress" placeholder="Address" />
+
+      <div class="row">
+        <div>
+          <label>Phone</label>
+          <input id="bPhone" type="tel" placeholder="Phone number" />
+        </div>
+        <div>
+          <label>Preferred dates/times</label>
+          <input id="bPreferred" placeholder="e.g., Sat 10–12 or Mon evening" />
+        </div>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>Pay Cash (Yes/No)</label>
+          <select id="bCash">
+            <option value="">Select</option>
+            <option>Yes</option>
+            <option>No</option>
+          </select>
+        </div>
+        <div>
+          <label>Pets</label>
+          <select id="bPets">
+            <option value="">Select</option>
+            <option>No</option>
+            <option>Yes</option>
+          </select>
+        </div>
+      </div>
+
 <label>Wishes &amp; additional notes</label>
-<textarea id="bNotes" placeholder="Any wishes, extra details, access instructions, parking, etc."></textarea>
-<div class="row">
-<button class="btn" id="bookBtn" type="button">Book now</button>
-<div class="small" style="display:flex;align-items:center;padding:10px 4px;color:rgba(18,18,18,.70)">
+      <textarea id="bNotes" placeholder="Any wishes, extra details, access instructions, parking, etc."></textarea>
+
+      <div class="row">
+        <button class="btn" id="bookBtn" type="button">Book now</button>
+        <div class="small" style="display:flex;align-items:center;padding:10px 4px;color:rgba(18,18,18,.70)">
           After you send the message: we’ll call you to confirm the booking and choose the most convenient date/time. No prepayment required.
         </div>
-</div>
-<div class="contactGrid">
-  <button class="contactBtn yellow" id="igQuickBtn" type="button">Write on Instagram</button>
-  <button class="contactBtn dark" id="fbQuickBtn" type="button">Write on Facebook</button>
-</div>
-<div class="small" id="copyStatus" style="margin-top:10px"></div>
-<div class="hr"></div>
-<div class="muted"><b>After you send the message:</b> we’ll call you to confirm the booking and choose the most convenient date/time. <b>No prepayment required.</b></div>
-</section>
-</div>
-<div aria-labelledby="includedTitle" aria-modal="true" class="modal" id="includedModal" role="dialog">
-<div class="modalCard">
-<div class="modalHeader">
-<h3 id="includedTitle">What’s included in deep cleaning</h3>
-<button class="closeBtn" id="closeModal" type="button">Close</button>
-</div>
-<div class="modalBody">
-<div class="muted" style="margin-bottom:12px">Scroll to view the full checklist images.</div>
-<div class="gallery">
-<div class="gItem">
-<div class="cap"><span class="gTitle">Bedrooms</span> deep cleaning tasks</div>
-<img alt="Deep cleaning bedrooms tasks" loading="lazy" src="assets/deep-cleaning-bedrooms.jpg"/>
-</div>
-<div class="gItem">
-<div class="cap"><span class="gTitle">Kitchen</span> deep cleaning tasks</div>
-<img alt="Deep cleaning kitchen tasks" loading="lazy" src="assets/deep-cleaning-kitchen.jpg"/>
-</div>
-<div class="gItem">
-<div class="cap"><span class="gTitle">Bathroom</span> deep cleaning tasks</div>
-<img alt="Deep cleaning bathroom tasks" loading="lazy" src="assets/deep-cleaning-bathroom.jpg"/>
-</div>
-<div class="gItem">
-<div class="cap"><span class="gTitle">General spaces</span> deep cleaning tasks</div>
-<img alt="Deep cleaning general spaces tasks" loading="lazy" src="assets/deep-cleaning-general-spaces.jpg"/>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div aria-hidden="true" class="stickyBar">
-<div class="inner">
+      </div>
 
+      <div class="contactGrid">
+        <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Write on Instagram</a>
+        <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Write on Facebook</a>
+      </div>
 
-</div>
-</div>
-<script>
-(() => {
-  "use strict";
+      <div class="small" id="copyStatus" style="margin-top:10px"></div>
 
-  const PRICING = {
-    hourlyRate: 39,
-    minBillableHours: 5,
-    maxBillableHours: 10,
-    freeMinutes: 30,
-    minOrderPrice: 195,
-    highMultiplier: 1.15
-  };
+      <div class="hr"></div>
+      <div class="muted"><b>After you send the message:</b> we’ll call you to confirm the booking and choose the most convenient date/time. <b>No prepayment required.</b></div>
+    </section>
+  </div>
 
-  const TIME = {
-    base: 1.0,
-    perBedroom: 0.25,
-    perBathroom: 0.35,
-    perKitchen: 0.40,
-    perExtraFloor: 0.20,  // floors beyond the first
-    perDining: 0.20,
-    perBasement: 0.30,
-    per1000Sqft: 0.40
-  };
+  <div class="modal" id="includedModal" role="dialog" aria-modal="true" aria-labelledby="includedTitle">
+    <div class="modalCard">
+      <div class="modalHeader">
+        <h3 id="includedTitle">What’s included in deep cleaning</h3>
+        <button class="closeBtn" id="closeModal" type="button">Close</button>
+      </div>
+      <div class="modalBody">
+        <div class="muted" style="margin-bottom:12px">Scroll to view the full checklist images.</div>
+        <div class="gallery">
+          <div class="gItem">
+            <div class="cap"><span class="gTitle">Bedrooms</span> deep cleaning tasks</div>
+            <img src="assets/deep-cleaning-bedrooms.jpg" alt="Deep cleaning bedrooms tasks" loading="lazy" />
+          </div>
+          <div class="gItem">
+            <div class="cap"><span class="gTitle">Kitchen</span> deep cleaning tasks</div>
+            <img src="assets/deep-cleaning-kitchen.jpg" alt="Deep cleaning kitchen tasks" loading="lazy" />
+          </div>
+          <div class="gItem">
+            <div class="cap"><span class="gTitle">Bathroom</span> deep cleaning tasks</div>
+            <img src="assets/deep-cleaning-bathroom.jpg" alt="Deep cleaning bathroom tasks" loading="lazy" />
+          </div>
+          <div class="gItem">
+            <div class="cap"><span class="gTitle">General spaces</span> deep cleaning tasks</div>
+            <img src="assets/deep-cleaning-general-spaces.jpg" alt="Deep cleaning general spaces tasks" loading="lazy" />
+          </div>
+        </div>
+        </div>
+    </div>
+  </div>
 
-  const els = {
-    // calculator inputs
-    bedrooms: document.getElementById("bedrooms"),
-    bathrooms: document.getElementById("bathrooms"),
-    kitchens: document.getElementById("kitchens"),
-    floors: document.getElementById("floors"),
-    dining: document.getElementById("diningRooms"),
-    basement: document.getElementById("basement"),
-    area: document.getElementById("area"),
-    unitSqftBtn: document.getElementById("unitSqft"),
-    unitM2Btn: document.getElementById("unitM2"),
-    unitHint: document.getElementById("unitHint"),
-    areaLabel: document.getElementById("areaLabel"),
+  <div class="stickyBar" aria-hidden="true">
+    <div class="inner">
+      <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Write on Instagram</a>
+      <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Write on Facebook</a>
+    </div>
+  </div>
 
-    // outputs
-    priceText: document.getElementById("priceText"),
-    priceNote: document.getElementById("priceNote"),
-    billableTime: document.getElementById("billableTime"),
-    onsiteTime: document.getElementById("onsiteTime"),
-
-    // actions
-    calcBtn: document.getElementById("calcBtn"),
-    bookBtn: document.getElementById("bookBtn"),
-
-    // "what's included" modal
-    includedBtn: document.getElementById("includedBtn"),
-    includedModal: document.getElementById("includedModal"),
-    closeModal: document.getElementById("closeModal"),
-
-    // booking modal
-    bookingModal: document.getElementById("bookingModal"),
-    closeBookingModal: document.getElementById("closeBookingModal"),
-    bookingMsgBox: document.getElementById("bookingMsgBox"),
-    bookingCopyStatus: document.getElementById("bookingCopyStatus"),
-    copyAgainBtn: document.getElementById("copyAgainBtn"),
-    igDmBtn: document.getElementById("igDmBtn"),
-    fbDmBtn: document.getElementById("fbDmBtn"),
-
-    // booking form fields
-    bName: document.getElementById("bName"),
-    bPhone: document.getElementById("bPhone"),
-    bAddress: document.getElementById("bAddress"),
-    bEmail: document.getElementById("bEmail"),
-    bPreferred: document.getElementById("bPreferred"),
-    bPayCash: document.getElementById("bPayCash"),
-    bPets: document.getElementById("bPets"),
-    bNotes: document.getElementById("bNotes"),
-  };
-
-  // -------- Unit handling --------
-  let currentUnit = null; // will be set on init
-
-  const SQFT_PER_M2 = 10.763910416709722;
-
-  function toNumber(el, fallback = 0) {
-    const v = Number(el?.value);
-    return Number.isFinite(v) ? v : fallback;
-  }
-
-  function clamp(n, min, max) {
-    return Math.max(min, Math.min(max, n));
-  }
-
-  function sqftToM2(sqft) {
-    return sqft / SQFT_PER_M2;
-  }
-  function m2ToSqft(m2) {
-    return m2 * SQFT_PER_M2;
-  }
-
-  function setUnit(unit) {
-    if (unit !== "sqft" && unit !== "m2") return;
-    if (unit === currentUnit) return;
-
-    // convert the current input value so the number remains "same size"
-    const raw = parseFloat(String(els.area.value || "").replace(",", "."));
-    if (Number.isFinite(raw) && raw > 0) {
-      const converted = unit === "m2" ? sqftToM2(raw) : m2ToSqft(raw);
-      els.area.value = (Math.round(converted * 10) / 10).toString(); // 1 decimal max
-    }
-
-    currentUnit = unit;
-
-    els.unitSqftBtn.classList.toggle("active", unit === "sqft");
-    els.unitM2Btn.classList.toggle("active", unit === "m2");
-    els.unitSqftBtn.setAttribute("aria-selected", unit === "sqft" ? "true" : "false");
-    els.unitM2Btn.setAttribute("aria-selected", unit === "m2" ? "true" : "false");
-
-    if (els.areaLabel) {
-      els.areaLabel.textContent = unit === "sqft" ? "Area (sq ft)" : "Area (m²)";
-    }
-    if (els.unitHint) {
-      els.unitHint.textContent = unit === "sqft" ? "sq ft" : "m²";
-    }
-  }
-
-  function getAreaSqft() {
-    const raw = parseFloat(String(els.area.value || "").replace(",", "."));
-    if (!Number.isFinite(raw) || raw <= 0) return 0;
-    return currentUnit === "m2" ? m2ToSqft(raw) : raw;
-  }
-
-  // -------- Estimate logic --------
-  function estimateBillableHours({ bedrooms, bathrooms, kitchens, floors, diningRooms, basement, areaSqft }) {
-    const extraFloors = Math.max(0, floors - 1);
-    let hours =
-      TIME.base +
-      bedrooms * TIME.perBedroom +
-      bathrooms * TIME.perBathroom +
-      kitchens * TIME.perKitchen +
-      extraFloors * TIME.perExtraFloor +
-      diningRooms * TIME.perDining +
-      basement * TIME.perBasement +
-      (areaSqft / 1000) * TIME.per1000Sqft;
-
-    // minimum & cap
-    hours = clamp(hours, PRICING.minBillableHours, PRICING.maxBillableHours);
-
-    // always round to nearest 0.5 for a cleaner UX
-    hours = Math.round(hours * 2) / 2;
-
-    // still respect cap after rounding
-    hours = Math.min(hours, PRICING.maxBillableHours);
-
-    return hours;
-  }
-
-  function calcPriceRange(billableHours) {
-    const rawLow = Math.max(PRICING.minOrderPrice, billableHours * PRICING.hourlyRate);
-    const low = Math.round(rawLow);
-    const high = Math.floor(rawLow * PRICING.highMultiplier);
-    return { low, high, rawLow };
-  }
-
-  function setPillText(pillEl, text) {
-    if (!pillEl) return;
-    const b = pillEl.querySelector("b");
-    if (b) b.textContent = text;
-  }
-
-  function renderEstimate() {
-    const bedrooms = toNumber(els.bedrooms, 0);
-    const bathrooms = toNumber(els.bathrooms, 0);
-    const kitchens = toNumber(els.kitchens, 0);
-    const floors = toNumber(els.floors, 1);
-    const diningRooms = toNumber(els.dining, 0);
-    const basement = toNumber(els.basement, 0);
-    const areaSqft = getAreaSqft();
-
-    if (!areaSqft) {
-      els.priceText.textContent = "—";
-      els.priceNote.textContent = "Enter the area to get an estimate.";
-      setPillText(els.billableTime, "—");
-      setPillText(els.onsiteTime, "—");
-      return null;
-    }
-
-    const billable = estimateBillableHours({ bedrooms, bathrooms, kitchens, floors, diningRooms, basement, areaSqft });
-    const onsite = billable + PRICING.freeMinutes / 60;
-
-    const { low, high } = calcPriceRange(billable);
-
-    els.priceText.textContent = `$${low}–$${high}`;
-    els.priceNote.textContent =
-      "Time-based estimate. Final price depends on condition and level of soiling.";
-
-    setPillText(els.billableTime, `${billable.toFixed(1)} hrs`);
-    setPillText(els.onsiteTime, `${onsite.toFixed(1)} hrs (+30 min FREE)`);
-
-    return {
-      bedrooms, bathrooms, kitchens, floors, diningRooms, basement,
-      areaSqft,
-      areaDisplay: parseFloat(String(els.area.value || "").replace(",", ".")) || 0,
-      unit: currentUnit,
-      billable, onsite,
-      low, high
+  <script>
+    const PRICING = {
+      currency: "$",
+      hourlyRate: 39,
+      minBillableHours: 5.0,
+            maxBillableHours: 10.0,   // cap billable time
+      freeBonusHours: 0.5,
+      minOrderPrice: 195,
+      baseHours: 1.0,
+      hoursPerBedroom: 0.25,
+      hoursPerBathroom: 0.35,
+      hoursPerKitchen: 0.40,
+      hoursPerDiningRoom: 0.20,
+      hoursPerBasement: 0.30,
+      hoursPerExtraFloor: 0.20,
+      hoursPer1000Sqft: 0.40,
+      rangeMultiplierHigh: 1.15
     };
-  }
 
-  // -------- Booking message --------
-  function buildBookingMessage(est) {
-    const areaLine = est.unit === "m2"
-      ? `${est.areaDisplay} m²`
-      : `${Math.round(est.areaDisplay)} sq ft`;
+    let currentUnit = "sqft";
 
-    return [
-      "Hi! I'd like to book a Deep Cleaning.",
-      "",
-      "--- Estimate from calculator ---",
-      `Bedrooms: ${est.bedrooms}`,
-      `Bathrooms: ${est.bathrooms}`,
-      `Kitchens: ${est.kitchens}`,
-      `Floors: ${est.floors}`,
-      `Dining rooms: ${est.diningRooms}`,
-      `Basement: ${est.basement}`,
-      `Area: ${areaLine}`,
-      `Estimated price: $${est.low}–$${est.high}`,
-      `Billable time: ${est.billable.toFixed(1)} hrs`,
-      `On-site time: ${est.onsite.toFixed(1)} hrs (+30 min FREE)`,
-      "",
-      `Name: ${v(els.bName)}`,
-      `Phone: ${v(els.bPhone)}`,
-      `Address: ${v(els.bAddress)}`,
-      `Email: ${v(els.bEmail)}`,
-      `Preferred dates/times: ${v(els.bPreferred)}`,
-      `Pay Cash (Yes/No): ${v(els.bPayCash)}`,
-      `Pets: ${v(els.bPets)}`,
-      `Wishes & additional notes: ${v(els.bNotes)}`,
-      "",
-      "Thank you!"
-    ].join("\n");
-  }
+    const els = {
+      bedrooms: document.getElementById("bedrooms"),
+      bathrooms: document.getElementById("bathrooms"),
+      kitchens: document.getElementById("kitchens"),
+      floors: document.getElementById("floors"),
+      diningRooms: document.getElementById("diningRooms"),
+      basements: document.getElementById("basements"),
+      area: document.getElementById("area"),
+      areaLabel: document.getElementById("areaLabel"),
+      unitSqft: document.getElementById("unitSqft"),
+      unitM2: document.getElementById("unitM2"),
+      unitHint: document.getElementById("unitHint"),
+      calcBtn: document.getElementById("calcBtn"),
+      includedBtn: document.getElementById("includedBtn"),
+      includedModal: document.getElementById("includedModal"),
+      closeModal: document.getElementById("closeModal"),
+      priceText: document.getElementById("priceText"),
+      priceNote: document.getElementById("priceNote"),
+      billableTime: document.getElementById("billableTime"),
+      onsiteTime: document.getElementById("onsiteTime"),
 
-  // -------- Clipboard --------
-  async function copyToClipboard(text) {
-    // Modern API
-    if (navigator.clipboard && window.isSecureContext) {
+      bName: document.getElementById("bName"),
+      bAddress: document.getElementById("bAddress"),
+      bEmail: document.getElementById("bEmail"),
+      bPhone: document.getElementById("bPhone"),
+      bPreferred: document.getElementById("bPreferred"),
+      bCash: document.getElementById("bCash"),
+      bPets: document.getElementById("bPets"),bNotes: document.getElementById("bNotes"),
+      copyStatus: document.getElementById("copyStatus"),
+          bookBtn: document.getElementById("bookBtn"),
+      bookingModal: document.getElementById("bookingModal"),
+      closeBookingModal: document.getElementById("closeBookingModal"),
+      copyAgainBtn: document.getElementById("copyAgainBtn"),
+      bookingCopyStatus: document.getElementById("bookingCopyStatus"),
+      bookingMsgBox: document.getElementById("bookingMsgBox"),
+};
+
+    const SQFT_PER_M2 = 10.76391041671;
+
+    function clamp(n){ return (!Number.isFinite(n) || n < 0) ? 0 : n; }
+    function roundUpHalf(n){ return Math.ceil(n * 2) / 2; }
+    function areaToSqft(area, unit){ return unit === "m2" ? area * SQFT_PER_M2 : area; }
+
+    function computeBillableHours({ bedrooms, bathrooms, kitchens, floors, diningRooms, basements, area, unit }){
+  bedrooms = clamp(bedrooms);
+  bathrooms = clamp(bathrooms);
+  kitchens = clamp(kitchens);
+  floors = clamp(floors);
+  diningRooms = clamp(diningRooms);
+  basements = clamp(basements);
+  area = clamp(area);
+
+  const areaSqft = areaToSqft(area, unit);
+  const extraFloors = Math.max(0, floors - 1);
+
+  let hours =
+    PRICING.baseHours +
+    bedrooms * PRICING.hoursPerBedroom +
+    bathrooms * PRICING.hoursPerBathroom +
+    kitchens * PRICING.hoursPerKitchen +
+    diningRooms * PRICING.hoursPerDiningRoom +
+    basements * PRICING.hoursPerBasement +
+    extraFloors * PRICING.hoursPerExtraFloor +
+    (areaSqft / 1000) * PRICING.hoursPer1000Sqft;
+
+  hours = roundUpHalf(hours);
+  let billable = Math.max(PRICING.minBillableHours, hours);
+      billable = Math.min(PRICING.maxBillableHours, billable);
+      return { billableHours: billable, areaSqft };
+}
+
+
+    function computePriceRange(billableHours){
+      let base = billableHours * PRICING.hourlyRate;
+      base = Math.max(base, PRICING.minOrderPrice);
+      const low = Math.round(base);
+      const high = Math.max(low, Math.round(base * PRICING.rangeMultiplierHigh));
+      return { low, high };
+    }
+
+    function getInputs(){
+  return {
+    bedrooms: Number(els.bedrooms.value),
+    bathrooms: Number(els.bathrooms.value),
+    kitchens: Number(els.kitchens.value),
+    floors: Number(els.floors.value),
+    diningRooms: Number(els.diningRooms.value),
+    basements: Number(els.basements.value),
+    area: Number(els.area.value),
+    unit: currentUnit
+  };
+}
+
+function setUnit(unit){
+      currentUnit = unit;
+
+      if (unit === "sqft"){
+        els.unitSqft.classList.add("active");
+        els.unitM2.classList.remove("active");
+        els.unitSqft.setAttribute("aria-selected", "true");
+        els.unitM2.setAttribute("aria-selected", "false");
+        els.areaLabel.textContent = "Total area (sq ft)";
+        els.unitHint.textContent = "Default: sq ft";
+      } else {
+        els.unitM2.classList.add("active");
+        els.unitSqft.classList.remove("active");
+        els.unitM2.setAttribute("aria-selected", "true");
+        els.unitSqft.setAttribute("aria-selected", "false");
+        els.areaLabel.textContent = "Total area (m²)";
+        els.unitHint.textContent = "Converted to sq ft for calculation";
+      }
+    }
+
+    function renderEstimate(){
+      const inputs = getInputs();
+
+      if (!inputs.area || inputs.area <= 0){
+        els.priceText.textContent = "$—";
+        els.priceNote.textContent = "Enter a valid area to calculate.";
+        els.billableTime.innerHTML = 'Billable time: <b>—</b>';
+        els.onsiteTime.innerHTML = 'On-site time: <b>—</b>';
+        return;
+      }
+
+      const { billableHours } = computeBillableHours(inputs);
+      const onsiteHours = billableHours + PRICING.freeBonusHours;
+      const { low, high } = computePriceRange(billableHours);
+
+      els.priceText.textContent = `${PRICING.currency}${low}–${PRICING.currency}${high}`;
+      els.priceNote.textContent = "Time-based estimate. Final price depends on condition and level of soiling.";
+
+      
+      if (billableHours >= PRICING.maxBillableHours) {
+        els.priceNote.textContent = "Time-based estimate. Capped at 10 billable hours (+30 min FREE). Final price depends on condition and level of soiling.";
+      }
+els.billableTime.innerHTML = `Billable time: <b>${billableHours.toFixed(1)} hrs</b>`;
+      els.onsiteTime.innerHTML = `On-site time: <b>${onsiteHours.toFixed(1)} hrs</b> (+30 min FREE)`;
+    }
+
+    els.unitSqft.addEventListener("click", () => { 
+    setUnit("sqft"); renderEstimate(); });
+    els.unitM2.addEventListener("click", () => { setUnit("m2"); renderEstimate(); });
+    els.calcBtn.addEventListener("click", renderEstimate);
+
+    function openModal(){
+      els.includedModal.classList.add("open");
+      document.body.style.overflow = "hidden";
+    }
+    function closeModal(){
+      els.includedModal.classList.remove("open");
+      document.body.style.overflow = "";
+    }
+    els.includedBtn.addEventListener("click", openModal);
+    els.closeModal.addEventListener("click", closeModal);
+    els.includedModal.addEventListener("click", (e) => {
+      if (e.target === els.includedModal) closeModal();
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { closeModal(); try { closeBookingModal(); } catch(e2){} }
+    });
+
+    function fmtDateTime(v){
+      if (!v) return "";
+      try {
+        const d = new Date(v);
+        if (isNaN(d.getTime())) return v;
+        return d.toLocaleString();
+      } catch(e) {
+        return v;
+      }
+    }
+
+            function buildBookingMessage(){
+      const name = (els.bName.value || "").trim();
+      const phone = (els.bPhone.value || "").trim();
+      const address = (els.bAddress.value || "").trim();
+      const email = (els.bEmail.value || "").trim();
+      const preferred = (els.bPreferred.value || "").trim();
+      const cash = (els.bCash.value || "").trim();
+      const pets = (els.bPets.value || "").trim();
+      const notes = (els.bNotes.value || "").trim();
+
+      // Include calculator details (layout + estimated price + hours)
+      const inputs = getInputs();
+      let estimateBlock = "";
+
+      if (inputs.area && inputs.area > 0) {
+        const { billableHours, areaSqft } = computeBillableHours(inputs);
+        const onsiteHours = billableHours + PRICING.freeBonusHours;
+        const { low, high } = computePriceRange(billableHours);
+
+        const areaLine = inputs.unit === "m2"
+          ? `${inputs.area} m² (≈ ${Math.round(areaSqft)} sq ft)`
+          : `${inputs.area} sq ft`;
+
+        estimateBlock =
+`--- Estimate from calculator ---
+Bedrooms: ${inputs.bedrooms}
+Bathrooms: ${inputs.bathrooms}
+Kitchens: ${inputs.kitchens}
+Floors: ${inputs.floors}
+Dining rooms: ${inputs.diningRooms}
+Basement: ${inputs.basements}
+Area: ${areaLine}
+Estimated price: ${PRICING.currency}${low}–${PRICING.currency}${high}
+Billable time: ${billableHours.toFixed(1)} hrs
+On-site time: ${onsiteHours.toFixed(1)} hrs (+30 min FREE)
+
+`;
+      } else {
+        estimateBlock =
+`--- Estimate from calculator ---
+(Please enter the area and tap "Calculate" first)
+
+`;
+      }
+
+      return `Hi! I'd like to book a Deep Cleaning.
+
+${estimateBlock}` +
+        `Name: ${name}
+` +
+        `Phone: ${phone}
+` +
+        `Address: ${address}
+` +
+        `Email: ${email}
+` +
+        `Preferred dates/times: ${preferred}
+` +
+        `Pay Cash (Yes/No): ${cash}
+` +
+        `Pets: ${pets}
+` +
+        `Wishes & additional notes: ${notes}
+
+` +
+        `Thank you!`;
+    }
+
+
+    async function copyToClipboard(text){
       try {
         await navigator.clipboard.writeText(text);
         return true;
-      } catch (_) {
-        // fall through
+      } catch (e) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.left = "-9999px";
+        ta.style.top = "0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        let ok = false;
+        try {
+          ok = document.execCommand("copy");
+        } catch(e2) {
+          ok = false;
+        }
+
+function openBookingModal(message, copiedOk){
+  els.bookingMsgBox.value = message;
+  els.bookingCopyStatus.className = copiedOk ? "statusOk" : "statusBad";
+  els.bookingCopyStatus.textContent = copiedOk
+    ? "✅ Message copied to clipboard"
+    : "⚠️ Could not copy automatically. Use 'Copy again' or copy from the box below.";
+
+  els.bookingModal.classList.add("open");
+  document.body.style.overflow = "hidden";
+  try { els.bookingMsgBox.scrollTop = 0; } catch(e){}
+}
+
+function closeBookingModal(){
+  els.bookingModal.classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+els.closeBookingModal.addEventListener("click", closeBookingModal);
+els.bookingModal.addEventListener("click", (e) => {
+  if (e.target === els.bookingModal) closeBookingModal();
+});
+
+els.copyAgainBtn.addEventListener("click", async () => {
+  const msg = els.bookingMsgBox.value || "";
+  const ok = await copyToClipboard(msg);
+  els.bookingCopyStatus.className = ok ? "statusOk" : "statusBad";
+  els.bookingCopyStatus.textContent = ok
+    ? "✅ Message copied to clipboard"
+    : "⚠️ Could not copy automatically. Please select and copy the text manually.";
+  if (!ok){
+    try { window.prompt("Copy this booking message:", msg); } catch(e){}
+  }
+});
+
+els.bookBtn.addEventListener("click", async () => {
+  const msg = buildBookingMessage();
+  const ok = await copyToClipboard(msg);
+
+  if (els.copyStatus) {
+    els.copyStatus.textContent = ok
+      ? "Copied. Now send the message via Instagram/Facebook."
+      : "Could not copy automatically. Please copy manually in the next step.";
+  }
+
+  openBookingModal(msg, ok);
+});
+
+        document.body.removeChild(ta);
+        return ok;
       }
     }
-
-    // Fallback
-    const ta = document.createElement("textarea");
-    ta.value = text;
-    ta.setAttribute("readonly", "");
-    ta.style.position = "fixed";
-    ta.style.top = "-9999px";
-    ta.style.left = "-9999px";
-    document.body.appendChild(ta);
-    ta.focus();
-    ta.select();
-
-    let ok = false;
-    try {
-      ok = document.execCommand("copy");
-    } catch (_) {
-      ok = false;
-    }
-
-    document.body.removeChild(ta);
-    return ok;
-  }
-
-  // -------- Modals --------
-  function openModal(modalEl) {
-    if (!modalEl) return;
-    modalEl.classList.add("open");
-    document.body.style.overflow = "hidden";
-  }
-  function closeModal(modalEl) {
-    if (!modalEl) return;
-    modalEl.classList.remove("open");
-    document.body.style.overflow = "";
-  }
-
-  // -------- Deep links (try app first) --------
-  function openAppLink({ androidIntent, fallbackUrl }) {
-    const isAndroid = /Android/i.test(navigator.userAgent);
-    if (isAndroid && androidIntent) {
-      // Try opening the app (same tab). If it fails, we fall back to the web link.
-      window.location.href = androidIntent;
-      setTimeout(() => { window.location.href = fallbackUrl; }, 700);
-      return;
-    }
-    window.location.href = fallbackUrl;
-  }
-
-  function openInstagramDM() {
-    openAppLink({
-      androidIntent: "intent://ig.me/m/northstarclean17#Intent;scheme=https;package=com.instagram.android;end",
-      fallbackUrl: "https://ig.me/m/northstarclean17"
-    });
-  }
-
-  function openFacebookDM() {
-    openAppLink({
-      androidIntent: "intent://m.me/Northstarclean17#Intent;scheme=https;package=com.facebook.orca;end",
-      fallbackUrl: "https://m.me/Northstarclean17"
-    });
-  }
-
-  // -------- Wire up --------
-  let lastBookingMessage = "";
-
-  function openBookingFlow() {
-    const est = renderEstimate();
-    if (!est) {
-      // nudge user to calculate with a valid area
-      els.area.focus();
-      return;
-    }
-
-    lastBookingMessage = buildBookingMessage(est);
-
-    openModal(els.bookingModal);
-
-    // Put message into the modal preview
-    if (els.bookingMsgBox) els.bookingMsgBox.textContent = lastBookingMessage;
-
-    // Copy immediately
-    Promise.resolve(copyToClipboard(lastBookingMessage)).then((ok) => {
-      if (els.bookingCopyStatus) {
-        els.bookingCopyStatus.textContent = ok
-          ? "Message copied. Tap Instagram or Facebook to send it."
-          : "Couldn’t copy automatically. Tap “Copy again”.";
-      }
-      if (els.copyAgainBtn) els.copyAgainBtn.style.display = ok ? "none" : "inline-flex";
-    });
-  }
-
-  // calculator
-  els.calcBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
+    setUnit("sqft");
     renderEstimate();
-  });
+  </script>
 
-  // auto-update estimate on input changes (cheap + improves UX)
-  ["input", "change"].forEach(evt => {
-    ["bedrooms","bathrooms","kitchens","floors","diningRooms","basement","area"].forEach(id => {
-      document.getElementById(id)?.addEventListener(evt, () => renderEstimate());
-    });
-  });
+  <div class="modal" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
+    <div class="modalCard">
+      <div class="modalHeader">
+        <h3 id="bookingTitle">Final step: send your booking message</h3>
+        <button class="closeBtn" id="closeBookingModal" type="button">Close</button>
+      </div>
+      <div class="modalBody">
+        <div class="muted" style="margin-bottom:10px">
+          To finalize the booking, please send the copied message to us on Instagram or Facebook.
+        </div>
 
-  // unit toggles
-  els.unitSqftBtn?.addEventListener("click", () => setUnit("sqft"));
-  els.unitM2Btn?.addEventListener("click", () => setUnit("m2"));
+        <div class="copyRow">
+          <div id="bookingCopyStatus" class="statusOk">✅ Message copied to clipboard</div>
+          <button class="miniBtn" id="copyAgainBtn" type="button">Copy again</button>
+        </div>
 
-  // included modal
-  els.includedBtn?.addEventListener("click", () => openModal(els.includedModal));
-  els.closeModal?.addEventListener("click", () => closeModal(els.includedModal));
-  els.includedModal?.addEventListener("click", (e) => {
-    if (e.target === els.includedModal) closeModal(els.includedModal);
-  });
+        <div class="actions">
+          <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Write on Instagram</a>
+          <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Write on Facebook</a>
+        </div>
 
-  // booking modal open/close
-  els.bookBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
-    openBookingFlow();
-  });
-
-  els.closeBookingModal?.addEventListener("click", () => closeModal(els.bookingModal));
-  els.bookingModal?.addEventListener("click", (e) => {
-    if (e.target === els.bookingModal) closeModal(els.bookingModal);
-  });
-
-  // copy again
-  els.copyAgainBtn?.addEventListener("click", async () => {
-    if (!lastBookingMessage) return;
-    const ok = await copyToClipboard(lastBookingMessage);
-    if (els.bookingCopyStatus) {
-      els.bookingCopyStatus.textContent = ok
-        ? "Message copied. Tap Instagram or Facebook to send it."
-        : "Copy failed. Please copy manually from the preview box.";
-    }
-    if (ok) els.copyAgainBtn.style.display = "none";
-  });
-
-  // DM buttons inside modal
-  els.igDmBtn?.addEventListener("click", async (e) => {
-    e.preventDefault();
-    if (lastBookingMessage) await copyToClipboard(lastBookingMessage);
-    openInstagramDM();
-  });
-
-  els.fbDmBtn?.addEventListener("click", async (e) => {
-    e.preventDefault();
-
-  // Quick contact buttons below the main Book button
-  const igQuickBtn = document.getElementById("igQuickBtn");
-  const fbQuickBtn = document.getElementById("fbQuickBtn");
-
-  igQuickBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
-    openInstagramDM();
-  });
-
-  fbQuickBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
-    openFacebookDM();
-  });
-
-    if (lastBookingMessage) await copyToClipboard(lastBookingMessage);
-    openFacebookDM();
-  });
-
-  // init
-  setUnit("sqft");
-  renderEstimate();
-})();
-</script>
-<div aria-labelledby="bookingTitle" aria-modal="true" class="modal" id="bookingModal" role="dialog">
-<div class="modalCard">
-<div class="modalHeader">
-<h3 id="bookingTitle">Finalize your booking</h3>
-<button class="closeBtn" id="closeBookingModal" type="button">Close</button>
-</div>
-<div class="modalBody">
-<div class="muted" style="margin-bottom:10px">To finalize your booking, send the copied message via Instagram or Facebook.</div>
-<div class="copyRow">
-<div class="statusOk" id="bookingCopyStatus"></div>
-<button class="miniBtn" id="copyAgainBtn" type="button">Copy again</button>
-</div>
-<div class="actions">
-<a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" id="igDmBtn" rel="noopener" target="_blank">Message on Instagram</a>
-<a class="contactBtn dark" href="https://m.me/Northstarclean17" id="fbDmBtn" rel="noopener" target="_blank">Message on Facebook</a>
-</div>
-<div class="small" style="margin-top:10px">
+        <div class="small" style="margin-top:10px">
           Tip: After opening the chat, tap and hold the message box, then choose <b>Paste</b>.
         </div>
-<textarea class="msgBox" id="bookingMsgBox" readonly=""></textarea>
-</div>
-</div>
-</div>
+
+        <textarea class="msgBox" id="bookingMsgBox" readonly></textarea>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
