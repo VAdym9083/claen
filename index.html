@@ -453,8 +453,10 @@
       <textarea id="bNotes" placeholder="Any extra details, access instructions, parking, etc."></textarea>
 
       <div class="row">
-        <button class="btn" id="copyMsgBtn" type="button">Copy booking message</button>
-        <button class="btn ghost" id="previewMsgBtn" type="button">Preview message</button>
+        <button class="btn" id="bookBtn" type="button">Book now</button>
+        <div class="small" style="display:flex;align-items:center;padding:10px 4px;color:rgba(18,18,18,.70)">
+          After you send the message: we’ll call you to confirm the booking and choose the most convenient date/time. No prepayment required.
+        </div>
       </div>
 
       <div class="contactGrid">
@@ -549,11 +551,9 @@
       bCash: document.getElementById("bCash"),
       bPets: document.getElementById("bPets"),
       bPriorities: document.getElementById("bPriorities"),
-      bNotes: document.getElementById("bNotes"),
-      copyMsgBtn: document.getElementById("copyMsgBtn"),
-      previewMsgBtn: document.getElementById("previewMsgBtn"),
-      copyStatus: document.getElementById("copyStatus"),
-    };
+      bNotes: document.getElementById("bNotes"),copyStatus: document.getElementById("copyStatus"),
+          bookBtn: document.getElementById("bookBtn"),
+};
 
     const SQFT_PER_M2 = 10.76391041671;
 
@@ -641,7 +641,24 @@
       els.onsiteTime.innerHTML = `On-site time: <b>${onsiteHours.toFixed(1)} hrs</b> (+30 min FREE)`;
     }
 
-    els.unitSqft.addEventListener("click", () => { setUnit("sqft"); renderEstimate(); });
+    els.unitSqft.addEventListener("click", () => { 
+els.bookBtn.addEventListener("click", async () => {
+  const msg = buildBookingMessage();
+  const ok = await copyToClipboard(msg);
+
+  if (ok) {
+    els.copyStatus.textContent = "Message copied. Open Instagram or Facebook below and paste it.";
+  } else {
+    els.copyStatus.textContent = "Could not copy automatically. Copy the message from the prompt, then send it on Instagram/Facebook.";
+    try {
+      window.prompt("Copy this booking message:", msg);
+    } catch (e) {
+      alert(msg);
+    }
+  }
+});
+
+    setUnit("sqft"); renderEstimate(); });
     els.unitM2.addEventListener("click", () => { setUnit("m2"); renderEstimate(); });
     els.calcBtn.addEventListener("click", renderEstimate);
 
@@ -733,20 +750,22 @@
       }
     }
 
-    els.copyMsgBtn.addEventListener("click", async () => {
-      const msg = buildBookingMessage();
-      const ok = await copyToClipboard(msg);
-      els.copyStatus.textContent = ok ? "Copied. Open Instagram/Facebook and paste the message." : "Could not copy automatically. Tap “Preview message” and copy manually.";
-    });
+    
+els.bookBtn.addEventListener("click", async () => {
+  const msg = buildBookingMessage();
+  const ok = await copyToClipboard(msg);
 
-    els.previewMsgBtn.addEventListener("click", () => {
-      const msg = buildBookingMessage();
-      try {
-        window.prompt("Copy this booking message:", msg);
-      } catch(e) {
-        alert(msg);
-      }
-    });
+  if (ok) {
+    els.copyStatus.textContent = "Message copied. Open Instagram or Facebook below and paste it.";
+  } else {
+    els.copyStatus.textContent = "Could not copy automatically. Copy the message from the prompt, then send it on Instagram/Facebook.";
+    try {
+      window.prompt("Copy this booking message:", msg);
+    } catch (e) {
+      alert(msg);
+    }
+  }
+});
 
     setUnit("sqft");
     renderEstimate();
