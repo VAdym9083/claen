@@ -372,6 +372,28 @@
       -webkit-overflow-scrolling: touch;
     }
 
+  
+    /* Full-screen booking modal on mobile */
+    @media (max-width: 640px){
+      #bookingModal .modalCard{
+        width: 100%;
+        height: 100%;
+        max-width: 100%;
+        margin: 0;
+        border-radius: 0;
+      }
+      #bookingModal .modalHeader{
+        position: sticky;
+        top: 0;
+        z-index: 2;
+        border-radius: 0;
+      }
+      #bookingModal .modalBody{
+        max-height: calc(100vh - 64px);
+        overflow-y: auto;
+      }
+    }
+
   </style>
 </head>
 
@@ -473,7 +495,7 @@
         <h2 style="margin-top:0">Quick contact</h2>
         <div class="muted">Ask a question, clarify details, or book directly:</div>
         <div class="contactGrid">
-          <a class="contactBtn yellow" id="writeIgBtn" href="https://ig.me/m/northstarclean17">Write on Instagram</a>
+          <a class="contactBtn yellow" id="writeIgBtn" id="bottomIgBtn" href="https://ig.me/m/northstarclean17">Write on Instagram</a>
           <a class="contactBtn dark" id="writeFbBtn" href="https://www.facebook.com/messages/t/Northstarclean17">Write on Facebook</a>
         </div>
 
@@ -791,7 +813,52 @@ els.billableTime.innerHTML = `Billable time: <b>${billableHours.toFixed(1)} hrs<
     }
 
     els.unitSqft.addEventListener("click", () => { 
-    setUnit("sqft"); renderEstimate(); });
+    function openFacebookMessenger(){
+  const fallback = "https://m.me/Northstarclean17";
+  const ua = navigator.userAgent || "";
+  const isAndroid = /Android/i.test(ua);
+  const isIOS = /iPhone|iPad|iPod/i.test(ua);
+
+  // Try to open the Messenger app first, then fallback to the web thread.
+  if (isAndroid){
+    const intentUrl = "intent://m.me/Northstarclean17#Intent;scheme=https;package=com.facebook.orca;S.browser_fallback_url="
+      + encodeURIComponent(fallback) + ";end";
+    window.location.href = intentUrl;
+    return;
+  }
+
+  if (isIOS){
+    // iOS deep-link attempt
+    window.location.href = "fb-messenger://user-thread/Northstarclean17";
+    setTimeout(() => { window.location.href = fallback; }, 900);
+    return;
+  }
+
+  // Desktop / unknown
+  window.location.href = fallback;
+}
+
+function wireMessengerButtons(){
+  const fbButtons = [document.getElementById("openFbBtn"), document.getElementById("bottomFbBtn")].filter(Boolean);
+  fbButtons.forEach(btn => {
+    btn.setAttribute("href", "https://m.me/Northstarclean17");
+    btn.removeAttribute("target"); // same window helps mobile app prompting
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      openFacebookMessenger();
+    });
+  });
+
+  const igButtons = [document.getElementById("openIgBtn"), document.getElementById("bottomIgBtn")].filter(Boolean);
+  igButtons.forEach(btn => {
+    // Keep ig.me as it already works for you; also open in same window for mobile
+    btn.setAttribute("href", "https://ig.me/m/northstarclean17");
+    btn.removeAttribute("target");
+  });
+}
+
+setUnit("sqft");
+    wireMessengerButtons(); renderEstimate(); });
     els.unitM2.addEventListener("click", () => { setUnit("m2"); renderEstimate(); });
     els.calcBtn.addEventListener("click", renderEstimate);
 
@@ -1009,6 +1076,7 @@ document.addEventListener("keydown", (e) => {
 });
 
 setUnit("sqft");
+    wireMessengerButtons();
     renderEstimate();
   
 
