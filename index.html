@@ -989,18 +989,22 @@ hours += extraKitchens * 0.75;
     specialists
   };
 
+  // Price badge + duplicate line
   if (els.priceText) els.priceText.textContent = `$${price}`;
   if (els.priceSingleText) els.priceSingleText.textContent = `$${price}`;
 
+  // Specialists bar
   if (els.specialistsText) {
     const per = fmtPerSpecialist(billable, specialists);
-    els.specialistsText.textContent = specialists === 1 ? `1 specialist` : `2 specialists (${per})`;
+    els.specialistsText.textContent =
+      specialists === 1 ? `1 specialist` : `2 specialists (${per})`;
   }
 
-  const billableB = els.billableHoursText ? els.billableHoursText.querySelector("b") : null;
+  // Billable / On-site pills in the main calculator
+  const billableB = els.billableTime ? els.billableTime.querySelector("b") : null;
   if (billableB) billableB.textContent = `${fmtHours(billable)} hrs`;
 
-  const onsiteB = els.onSiteHoursText ? els.onSiteHoursText.querySelector("b") : null;
+  const onsiteB = els.onsiteTime ? els.onsiteTime.querySelector("b") : null;
   if (onsiteB) onsiteB.textContent = `${fmtHours(onSite)} hrs (+30 min FREE)`;
 };
   // ========= BOOKING MESSAGE =========
