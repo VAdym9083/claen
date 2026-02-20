@@ -651,6 +651,43 @@ function getUTM() {
   return out;
 }
 
+
+function toNum(v) {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function normalizeEstimateForWebhook(e) {
+  if (!e) return null;
+
+  // Normalize naming differences between UI/estimate and Apps Script sheet columns.
+  const dining = (e.dining_rooms ?? e.diningRooms ?? e.dining ?? 0);
+  const basements = (e.basements ?? e.basement ?? 0);
+
+  // Always store area as sq ft in the sheet for consistency
+  const areaSqft = (e.areaSqft ?? e.area_sqft ?? (e.unit === "m2" ? (toNum(e.areaRaw) * SQFT_PER_M2) : toNum(e.areaRaw)) ?? toNum(e.area) ?? 0);
+
+  const billable = (e.billable_hours ?? e.billable ?? 0);
+  const onSite = (e.on_site_hours ?? e.onSite ?? 0);
+  const minPrice = (e.min_price ?? e.minPrice ?? 0);
+  const maxPrice = (e.max_price ?? e.maxPrice ?? 0);
+
+  return {
+    bedrooms: toNum(e.bedrooms),
+    bathrooms: toNum(e.bathrooms),
+    kitchens: toNum(e.kitchens),
+    floors: toNum(e.floors),
+    dining_rooms: toNum(dining),
+    basements: toNum(basements),
+    area: Math.round(areaSqft),
+    unit: "sqft",
+    billable_hours: toNum(billable),
+    on_site_hours: toNum(onSite),
+    min_price: toNum(minPrice),
+    max_price: toNum(maxPrice),
+  };
+}
+
 function sendLeadToWebhook(payload) {
   if (!LEAD_WEBHOOK_URL || LEAD_WEBHOOK_URL.includes("PASTE_YOUR_GOOGLE")) return;
 
@@ -939,7 +976,7 @@ Bedrooms: ${e.bedrooms}
 Bathrooms: ${e.bathrooms}
 Kitchens: ${e.kitchens}
 Floors: ${e.floors}
-Dining rooms: ${e.diningRooms}
+Dining rooms: ${e.diningRooms ?? e.dining_rooms ?? 0}
 Basement: ${e.basements}
 ${areaLine}
 Estimated price: $${e.minPrice}–$${e.maxPrice}
@@ -1164,7 +1201,7 @@ async function openBookingFlow() {
       page_url: window.location.href,
       user_agent: navigator.userAgent,
       utm: getUTM(),
-      estimate: lastEstimate || null,
+      estimate: normalizeEstimateForWebhook(lastEstimate),
       booking: {
         name: (els.bName?.value || "").trim(),
         phone: (els.bPhone?.value || "").trim(),
