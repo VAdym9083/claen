@@ -372,7 +372,21 @@
       -webkit-overflow-scrolling: touch;
     }
 
-  </style>
+  
+
+    /* Confirm step */
+    #confirmModal .modalBody{max-height:70vh;overflow:auto}
+    .statusLine{font-size:14px;padding:10px 12px;border-radius:12px;background:#f3f4f6;border:1px solid #e5e7eb;margin:0 0 10px}
+    .statusLine.ok{background:#ecfdf3;border-color:#86efac}
+    .statusLine.warn{background:#fff7ed;border-color:#fdba74}
+    .validationLine{font-size:14px;padding:10px 12px;border-radius:12px;background:#fef2f2;border:1px solid #fecaca;margin:0 0 10px}
+    .checkRow{display:flex;align-items:flex-start;gap:10px;margin:12px 0}
+    .checkRow input{margin-top:3px;width:18px;height:18px}
+    .checkRow label{font-weight:700}
+    .actionsRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .actionsRow .btn{flex:1;min-width:180px}
+
+</style>
 </head>
 
 <body>
@@ -649,11 +663,23 @@ document.addEventListener("DOMContentLoaded", () => {
     bookingCopyStatus: document.getElementById("bookingCopyStatus"),
     copyAgainBtn: document.getElementById("copyAgainBtn"),
     bookingMsgBox: document.getElementById("bookingMsgBox"),
-  };
+  
+
+    // Confirm modal (step before opening chat)
+    confirmModal: document.getElementById("confirmModal"),
+    closeConfirmModal: document.getElementById("closeConfirmModal"),
+    confirmCopyStatus: document.getElementById("confirmCopyStatus"),
+    confirmValidation: document.getElementById("confirmValidation"),
+    confirmMsgBox: document.getElementById("confirmMsgBox"),
+    confirmCheckbox: document.getElementById("confirmCheckbox"),
+    confirmContinueBtn: document.getElementById("confirmContinueBtn"),
+    confirmEditBtn: document.getElementById("confirmEditBtn"),
+};
 
   // ========= STATE =========
   let currentUnit = "sqft"; // default
   let lastEstimate = null;  // cache latest estimate
+  let pendingBooking = { message: "", copied: false };
 
   // ========= HELPERS =========
   const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
@@ -916,7 +942,70 @@ Thank you!`;
     els.bookingModal.classList.remove("open");
   }
 
-  async function openBookingFlow() {
+  
+
+  function validateBookingBasics() {
+    const missing = [];
+    const name = (els.name?.value || "").trim();
+    const phone = (els.phone?.value || "").trim();
+    if (!name) missing.push("Name");
+    if (!phone) missing.push("Phone");
+    return missing;
+  }
+
+  function updateConfirmContinueState() {
+    if (!els.confirmModal) return;
+    const missing = validateBookingBasics();
+
+    if (els.confirmValidation) {
+      if (missing.length) {
+        els.confirmValidation.style.display = "block";
+        els.confirmValidation.innerHTML = `Please fill in: <b>${missing.join(", ")}</b>.`;
+      } else {
+        els.confirmValidation.style.display = "none";
+        els.confirmValidation.textContent = "";
+      }
+    }
+
+    const canContinue = !!(els.confirmCheckbox?.checked) && missing.length === 0;
+    if (els.confirmContinueBtn) els.confirmContinueBtn.disabled = !canContinue;
+  }
+
+  function openConfirmModal(message, copied) {
+    pendingBooking = { message, copied };
+
+    if (els.confirmMsgBox) els.confirmMsgBox.value = message;
+
+    if (els.confirmCopyStatus) {
+      els.confirmCopyStatus.classList.remove("ok", "warn");
+      if (copied) {
+        els.confirmCopyStatus.classList.add("ok");
+        els.confirmCopyStatus.textContent = "✅ Booking message copied to clipboard.";
+      } else {
+        els.confirmCopyStatus.classList.add("warn");
+        els.confirmCopyStatus.textContent = "⚠️ Couldn’t auto-copy. You can manually copy the text above.";
+      }
+    }
+
+    if (els.confirmCheckbox) els.confirmCheckbox.checked = false;
+    updateConfirmContinueState();
+
+    els.confirmModal.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+
+  function closeConfirmModal() {
+    if (!els.confirmModal) return;
+    els.confirmModal.classList.remove("open");
+    document.body.style.overflow = "auto";
+  }
+
+  async function openConfirmFlow() {
+    const message = buildBookingMessage();
+    const copied = await copyToClipboard(message);
+    openConfirmModal(message, copied);
+  }
+async function openBookingFlow() {
     const message = buildBookingMessage();
     const copied = await copyToClipboard(message);
     openBookingModal(message, copied);
@@ -944,7 +1033,7 @@ Thank you!`;
   // Book button: copy + open popup (best for conversion)
   if (els.bookBtn) els.bookBtn.addEventListener("click", (e) => {
     e.preventDefault();
-    openBookingFlow();
+    openConfirmFlow();
   });
 
   // Booking modal controls
@@ -988,9 +1077,70 @@ Thank you!`;
   if (els.areaLabel) els.areaLabel.textContent = "Total area (sq ft)";
   if (els.unitHint) els.unitHint.textContent = "Tip: most people in Canada use sq ft.";
 
-  renderEstimate();
+  
+
+  // Confirm modal listeners
+  if (els.closeConfirmModal) els.closeConfirmModal.addEventListener("click", closeConfirmModal);
+  if (els.confirmEditBtn) els.confirmEditBtn.addEventListener("click", closeConfirmModal);
+
+  if (els.confirmCheckbox) els.confirmCheckbox.addEventListener("change", updateConfirmContinueState);
+
+  // Keep validation live
+  [els.name, els.phone].forEach((el) => {
+    if (!el) return;
+    el.addEventListener("input", updateConfirmContinueState);
+    el.addEventListener("change", updateConfirmContinueState);
+  });
+
+  if (els.confirmContinueBtn) {
+    els.confirmContinueBtn.addEventListener("click", () => {
+      updateConfirmContinueState();
+      if (els.confirmContinueBtn.disabled) return;
+      closeConfirmModal();
+      openBookingModal(pendingBooking.message, pendingBooking.copied);
+    });
+  }
+
+  if (els.confirmModal) {
+    els.confirmModal.addEventListener("click", (e) => {
+      if (e.target === els.confirmModal) closeConfirmModal();
+    });
+  }
+renderEstimate();
 });
 </script>
+
+
+  <div class="modal" id="confirmModal" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="modalCard">
+      <div class="modalHeader">
+        <div>
+          <h3 id="confirmTitle">Confirm your details</h3>
+          <div class="muted">Please confirm everything is correct. This helps prevent accidental bookings.</div>
+        </div>
+        <button class="closeBtn" id="closeConfirmModal" type="button">Close</button>
+      </div>
+      <div class="modalBody">
+        <div class="statusLine" id="confirmCopyStatus"></div>
+        <div class="validationLine" id="confirmValidation" style="display:none"></div>
+
+        <div class="checkRow">
+          <input type="checkbox" id="confirmCheckbox" />
+          <label for="confirmCheckbox">I confirm the details above are correct.</label>
+        </div>
+
+        <div class="cap" style="margin:10px 0 6px">Message preview</div>
+        <textarea class="msgBox" id="confirmMsgBox" readonly></textarea>
+        <div class="muted" style="margin-top:8px">Next: tap <b>Confirm &amp; continue</b>, then choose Instagram or Facebook and paste the message.</div>
+
+        <div class="actionsRow">
+          <button class="btn" id="confirmContinueBtn" type="button" disabled>Confirm &amp; continue</button>
+          <button class="btn secondary" id="confirmEditBtn" type="button">Edit details</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <div class="modal" id="bookingModal" role="dialog" aria-modal="true" aria-labelledby="bookingTitle">
     <div class="modalCard">
