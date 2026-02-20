@@ -1015,29 +1015,57 @@ async function openBookingFlow() {
   // Android: use an intent that targets com.facebook.katana.
   function openFacebookMessages(e) {
     if (e) e.preventDefault();
+
     const threadUrl = "https://www.facebook.com/messages/t/Northstarclean17";
+    const pageUrl = "https://www.facebook.com/Northstarclean17";
+
     const ua = navigator.userAgent || "";
     const isAndroid = /Android/i.test(ua);
+    const isIOS = /iPhone|iPad|iPod/i.test(ua);
 
-    if (isAndroid) {
-      const intentUrl =
-        "intent://www.facebook.com/messages/t/Northstarclean17#Intent;scheme=https;package=com.facebook.katana;end";
-      // Try to open the Facebook app.
-      window.location.href = intentUrl;
-      // Fallback to web if the app can’t be opened.
-      setTimeout(() => {
-        try {
-          window.open(threadUrl, "_blank");
-        } catch (_) {
-          window.location.href = threadUrl;
-        }
-      }, 700);
-    } else {
-      try {
-        window.open(threadUrl, "_blank");
-      } catch (_) {
-        window.location.href = threadUrl;
+    // If the Facebook app opens, the browser tab becomes hidden.
+    // We cancel the web fallback in that case.
+    let fallbackTimer = null;
+    const cancelFallback = () => {
+      if (fallbackTimer) {
+        clearTimeout(fallbackTimer);
+        fallbackTimer = null;
       }
+      document.removeEventListener("visibilitychange", onVisChange);
+    };
+    const onVisChange = () => {
+      if (document.hidden) cancelFallback();
+    };
+    document.addEventListener("visibilitychange", onVisChange);
+
+    fallbackTimer = setTimeout(() => {
+      // App didn’t open -> fall back to web (thread first, then page).
+      try {
+        window.location.href = threadUrl;
+      } catch (_) {
+        window.location.href = pageUrl;
+      }
+    }, 900);
+
+    try {
+      if (isAndroid) {
+        // Most reliable way on Android Chrome: Intent with fb scheme.
+        const intentUrl =
+          "intent://facewebmodal/f?href=" +
+          encodeURIComponent(threadUrl) +
+          "#Intent;scheme=fb;package=com.facebook.katana;end";
+        window.location.href = intentUrl;
+      } else if (isIOS) {
+        // iOS deep link.
+        const fbUrl = "fb://facewebmodal/f?href=" + encodeURIComponent(threadUrl);
+        window.location.href = fbUrl;
+      } else {
+        // Desktop: just open the thread in a new tab.
+        cancelFallback();
+        window.open(threadUrl, "_blank", "noopener");
+      }
+    } catch (_) {
+      // If anything goes wrong, the fallback will handle it.
     }
 
     return false;
