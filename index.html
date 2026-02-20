@@ -622,9 +622,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     calcBtn: document.getElementById("calcBtn"),
 
-    priceRangeText: document.getElementById("priceRangeText"),
-    billableHoursText: document.getElementById("billableHoursText"),
-    onSiteHoursText: document.getElementById("onSiteHoursText"),
+    priceText: document.getElementById("priceText"),
+    billableTime: document.getElementById("billableTime"),
+    onsiteTime: document.getElementById("onsiteTime"),
 
     // Booking fields
     bName: document.getElementById("bName"),
@@ -823,11 +823,17 @@ document.addEventListener("DOMContentLoaded", () => {
       maxPrice,
     };
 
-    if (els.priceRangeText) els.priceRangeText.textContent = `$${minPrice}–$${maxPrice}`;
-    if (els.billableHoursText) els.billableHoursText.textContent = `${fmtHours(billable)} hrs`;
-    if (els.onSiteHoursText) els.onSiteHoursText.textContent = `${fmtHours(onSite)} hrs (+30 min FREE)`;
-  }
+    // Main estimate card (visible right after "Calculate")
+    if (els.priceText) {
+      els.priceText.textContent = `$${minPrice}–$${maxPrice}`;
+    }
 
+    const billableB = els.billableTime ? els.billableTime.querySelector("b") : null;
+    if (billableB) billableB.textContent = `${fmtHours(billable)} hrs`;
+
+    const onsiteB = els.onsiteTime ? els.onsiteTime.querySelector("b") : null;
+    if (onsiteB) onsiteB.textContent = `${fmtHours(onSite)} hrs (+30 min FREE)`;
+  };
   // ========= BOOKING MESSAGE =========
   function buildBookingMessage() {
     // Ensure we have a fresh estimate
