@@ -488,7 +488,7 @@
         <div class="muted">Ask a question, clarify details, or book directly:</div>
         <div class="contactGrid">
           <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Write on Instagram</a>
-          <a class="contactBtn dark" href="https://www.facebook.com/messages/t/Northstarclean17" onclick="return openFacebookMessages(event)" rel="noopener">Write on Facebook</a>
+          <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Write on Facebook</a>
         </div>
 
         <div class="hr"></div>
@@ -559,7 +559,7 @@
 
       <div class="contactGrid">
         <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Write on Instagram</a>
-        <a class="contactBtn dark" href="https://www.facebook.com/messages/t/Northstarclean17" onclick="return openFacebookMessages(event)" rel="noopener">Write on Facebook</a>
+        <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Write on Facebook</a>
       </div>
 
       <div class="small" id="copyStatus" style="margin-top:10px"></div>
@@ -602,7 +602,7 @@
   <div class="stickyBar" aria-hidden="true">
     <div class="inner">
       <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Write on Instagram</a>
-      <a class="contactBtn dark" href="https://www.facebook.com/messages/t/Northstarclean17" onclick="return openFacebookMessages(event)" rel="noopener">Write on Facebook</a>
+      <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Write on Facebook</a>
     </div>
   </div>
 
@@ -1011,66 +1011,6 @@ async function openBookingFlow() {
     openBookingModal(message, copied);
   }
 
-  // Open Facebook *in the Facebook app* (not Messenger) when possible.
-  // Android: use an intent that targets com.facebook.katana.
-  function openFacebookMessages(e) {
-    if (e) e.preventDefault();
-
-    const threadUrl = "https://www.facebook.com/messages/t/Northstarclean17";
-    const pageUrl = "https://www.facebook.com/Northstarclean17";
-
-    const ua = navigator.userAgent || "";
-    const isAndroid = /Android/i.test(ua);
-    const isIOS = /iPhone|iPad|iPod/i.test(ua);
-
-    // If the Facebook app opens, the browser tab becomes hidden.
-    // We cancel the web fallback in that case.
-    let fallbackTimer = null;
-    const cancelFallback = () => {
-      if (fallbackTimer) {
-        clearTimeout(fallbackTimer);
-        fallbackTimer = null;
-      }
-      document.removeEventListener("visibilitychange", onVisChange);
-    };
-    const onVisChange = () => {
-      if (document.hidden) cancelFallback();
-    };
-    document.addEventListener("visibilitychange", onVisChange);
-
-    fallbackTimer = setTimeout(() => {
-      // App didn’t open -> fall back to web (thread first, then page).
-      try {
-        window.location.href = threadUrl;
-      } catch (_) {
-        window.location.href = pageUrl;
-      }
-    }, 900);
-
-    try {
-      if (isAndroid) {
-        // Most reliable way on Android Chrome: Intent with fb scheme.
-        const intentUrl =
-          "intent://facewebmodal/f?href=" +
-          encodeURIComponent(threadUrl) +
-          "#Intent;scheme=fb;package=com.facebook.katana;end";
-        window.location.href = intentUrl;
-      } else if (isIOS) {
-        // iOS deep link.
-        const fbUrl = "fb://facewebmodal/f?href=" + encodeURIComponent(threadUrl);
-        window.location.href = fbUrl;
-      } else {
-        // Desktop: just open the thread in a new tab.
-        cancelFallback();
-        window.open(threadUrl, "_blank", "noopener");
-      }
-    } catch (_) {
-      // If anything goes wrong, the fallback will handle it.
-    }
-
-    return false;
-  }
-
   // ========= INCLUDED MODAL =========
   function openIncludedModal() {
     if (!els.includedModal) return;
@@ -1220,7 +1160,7 @@ renderEstimate();
 
         <div class="actions">
           <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Write on Instagram</a>
-          <a class="contactBtn dark" href="https://www.facebook.com/messages/t/Northstarclean17" onclick="return openFacebookMessages(event)" rel="noopener">Write on Facebook</a>
+          <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Write on Facebook</a>
         </div>
 
         <div class="small" style="margin-top:10px">
