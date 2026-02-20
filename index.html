@@ -847,9 +847,8 @@ const SQFT_PER_M2 = 10.7639;
     const floors = safeInt(els.floors.value);
     const diningRooms = safeInt(els.diningRooms.value);
 
-    // Basement is treated as 0/1 in pricing (anything >0 counts as 1)
-    const basementRaw = safeInt(els.basements.value);
-    const basements = basementRaw > 0 ? 1 : 0;
+    // Basement: allow counts (0..5). Pricing includes 1 basement in the base; extras are charged later.
+    const basements = clamp(safeInt(els.basements.value), 0, 5);
 
     const areaRaw = safeNumber(els.area.value);
     const areaSqft = currentUnit === "m2" ? (areaRaw * SQFT_PER_M2) : areaRaw;
@@ -878,9 +877,9 @@ const SQFT_PER_M2 = 10.7639;
     if (a <= 2999) return 6.25;
     if (a <= 3499) return 8.25;
 
-    // 3500+ -> 8.25 + 0.75h per +500 sqft (linear)
-    return 8.25 + 0.75 * ((a - 3500) / 500);
-  }
+    // 3500+ -> 8.25 + 0.75h per each additional FULL 500 sq ft (stepwise)
+    const extraBlocks = Math.max(0, Math.floor((a - 3500) / 500));
+    return 8.25 + 0.75 * extraBlocks;}
 
   function normsByArea(areaSqft) {
     const a = Math.max(1, areaSqft);
@@ -897,13 +896,12 @@ const SQFT_PER_M2 = 10.7639;
     let hours = baseHoursByArea(inputs.areaSqft);
 
     // Extras above "standard" that is already included in the area base:
-    // Kitchen included 1, Dining included 1, Floors included 1, Basement included 0
+    // Kitchen included 1, Dining included 1, Floors included 1, Basement included 1
     const extraKitchens = Math.max(0, inputs.kitchens - 1);
     const extraDining = Math.max(0, inputs.diningRooms - 1);
     const extraFloors = Math.max(0, inputs.floors - 1);
-    const extraBasement = inputs.basements > 0 ? 1 : 0;
-
-    hours += extraKitchens * 0.75;
+    const extraBasement = Math.max(0, inputs.basements - 1);
+hours += extraKitchens * 0.75;
     hours += extraDining * 0.25;
     hours += extraFloors * 0.35;
     hours += extraBasement * 0.90;
