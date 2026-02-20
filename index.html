@@ -635,7 +635,49 @@ document.addEventListener("DOMContentLoaded", () => {
     maxBillableHours: 10.0,  // cap: cannot book more than 10h (+30 min FREE)
   };
 
-  const SQFT_PER_M2 = 10.7639;
+  
+
+// ===== Lead capture (FREE option: Google Apps Script Web App) =====
+// 1) Create a Google Apps Script Web App endpoint (instructions in chat)
+// 2) Paste its URL here (include a token parameter for basic protection)
+// Example: https://script.google.com/macros/s/XXXXX/exec?token=YOUR_SECRET
+const LEAD_WEBHOOK_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEBAPP_URL_HERE";
+
+function getUTM() {
+  const p = new URLSearchParams(window.location.search);
+  const keys = ["utm_source","utm_medium","utm_campaign","utm_content","utm_term"];
+  const out = {};
+  keys.forEach(k => { const v = p.get(k); if (v) out[k] = v; });
+  return out;
+}
+
+function sendLeadToWebhook(payload) {
+  if (!LEAD_WEBHOOK_URL || LEAD_WEBHOOK_URL.includes("PASTE_YOUR_GOOGLE")) return;
+
+  const body = JSON.stringify(payload);
+
+  // Best-effort send. Do not block UI.
+  try {
+    if (navigator.sendBeacon) {
+      const blob = new Blob([body], { type: "text/plain;charset=UTF-8" });
+      const ok = navigator.sendBeacon(LEAD_WEBHOOK_URL, blob);
+      if (ok) return;
+    }
+  } catch (e) {}
+
+  // Fallback: no-cors POST (request is sent; response not readable)
+  try {
+    fetch(LEAD_WEBHOOK_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "text/plain;charset=UTF-8" },
+      body,
+      keepalive: true
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+const SQFT_PER_M2 = 10.7639;
 
   // ========= DOM =========
   const els = {
@@ -1112,12 +1154,37 @@ async function openBookingFlow() {
 
   if (els.confirmContinueBtn) {
     els.confirmContinueBtn.addEventListener("click", () => {
-      updateConfirmContinueState();
-      if (els.confirmContinueBtn.disabled) return;
-      closeConfirmModal();
-      openBookingModal(pendingBooking.message, pendingBooking.copied);
-    });
-  }
+  updateConfirmContinueState();
+  if (els.confirmContinueBtn.disabled) return;
+
+  // Capture lead (free): send all fields + estimate to your webhook (Google Apps Script)
+  try {
+    const payload = {
+      ts: new Date().toISOString(),
+      page_url: window.location.href,
+      user_agent: navigator.userAgent,
+      utm: getUTM(),
+      estimate: lastEstimate || null,
+      booking: {
+        name: (els.bName?.value || "").trim(),
+        phone: (els.bPhone?.value || "").trim(),
+        address: (els.bAddress?.value || "").trim(),
+        email: (els.bEmail?.value || "").trim(),
+        preferred_dates_times: (els.bPreferred?.value || "").trim(),
+        pay_cash: (els.bCash?.value || "").trim(),
+        pets: (els.bPets?.value || "").trim(),
+        notes: (els.bNotes?.value || "").trim(),
+      },
+      message: pendingBooking?.message || ""
+    };
+    sendLeadToWebhook(payload);
+        try { if (window.fbq) fbq('track', 'Lead'); } catch(e2) {}
+  } catch (e) {}
+
+  closeConfirmModal();
+  openBookingModal(pendingBooking.message, pendingBooking.copied);
+});
+}
 
   if (els.confirmModal) {
     els.confirmModal.addEventListener("click", (e) => {
