@@ -386,6 +386,13 @@
     .actionsRow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
     .actionsRow .btn{flex:1;min-width:180px}
 
+
+.callBtn{
+  background:#f2f3f5 !important;
+  border:1px solid rgba(18,18,18,.14) !important;
+  color:#111 !important;
+}
+
 </style>
 <!-- Meta Pixel Code -->
 <script>
@@ -476,6 +483,11 @@ src="https://www.facebook.com/tr?id=882187051357907&ev=PageView&noscript=1"
             <div class="priceValue" id="priceText">$—</div>
           </div>
           <div class="note" id="priceNote">Time-based estimate. Final price depends on condition and level of soiling.</div>
+          <div class="pill" style="margin-top:10px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;border-radius:14px;border:1px solid rgba(18,18,18,.14);background:#fff">
+            <span style="font-weight:900">Specialists on cleaning:</span>
+            <span id="specialistsText" style="font-weight:900">—</span>
+          </div>
+          <div class="muted" id="priceDuplicate" style="margin-top:8px">Estimated price: <b id="priceSingleText">—</b> (price will be уточнюється after confirmation call)</div>
 
           <div class="timebox">
             <div class="pill" id="billableTime">Billable time: <b>—</b></div>
@@ -505,6 +517,7 @@ src="https://www.facebook.com/tr?id=882187051357907&ev=PageView&noscript=1"
         <h2 style="margin-top:0">Quick contact</h2>
         <div class="muted">Ask a question, clarify details, or book directly:</div>
         <div class="contactGrid">
+          <a class="contactBtn callBtn" href="tel:+16476973002">Call 647-697-3002</a>
           <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Write on Instagram</a>
           <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Write on Facebook</a>
         </div>
@@ -771,7 +784,10 @@ const SQFT_PER_M2 = 10.7639;
     confirmCheckbox: document.getElementById("confirmCheckbox"),
     confirmContinueBtn: document.getElementById("confirmContinueBtn"),
     confirmEditBtn: document.getElementById("confirmEditBtn"),
-};
+
+    specialistsText: document.getElementById("specialistsText"),
+    priceSingleText: document.getElementById("priceSingleText"),
+  };
 
   // ========= STATE =========
   let currentUnit = "sqft"; // default
@@ -781,7 +797,19 @@ const SQFT_PER_M2 = 10.7639;
   // ========= HELPERS =========
   const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
 
-  function safeNumber(val) {
+  function parseAreaInput(raw) {
+  const s = String(raw || "").trim().replace(",", ".");
+  // Support ranges like "2500-3000" or "2500–3000"
+  const m = s.match(/(\d+(?:\.\d+)?)\s*[-–—]\s*(\d+(?:\.\d+)?)/);
+  if (m) {
+    const hi = parseFloat(m[2]);
+    return Number.isFinite(hi) ? hi : 0;
+  }
+  const v = parseFloat(s);
+  return Number.isFinite(v) ? v : 0;
+}
+
+function safeNumber(val) {
     if (val == null) return 0;
     const s = String(val).trim().replace(",", ".");
     const n = parseFloat(s);
@@ -801,7 +829,17 @@ const SQFT_PER_M2 = 10.7639;
     return s;
   }
 
-  function fmtMoney(n) {
+  function getSpecialists(billableHours) {
+  // 1 specialist up to 7.5 billable hours, 2 specialists for anything above
+  return billableHours > 7.5 ? 2 : 1;
+}
+
+function fmtPerSpecialist(totalHours, specialists) {
+  const each = totalHours / Math.max(1, specialists);
+  return `${fmtHours(each)} hrs each`;
+}
+
+function fmtMoney(n) {
     return Math.round(n);
   }
 
@@ -850,8 +888,8 @@ const SQFT_PER_M2 = 10.7639;
     // Basement: allow counts (0..5). Pricing includes 1 basement in the base; extras are charged later.
     const basements = clamp(safeInt(els.basements.value), 0, 5);
 
-    const areaRaw = safeNumber(els.area.value);
-    const areaSqft = currentUnit === "m2" ? (areaRaw * SQFT_PER_M2) : areaRaw;
+    const areaRaw = parseAreaInput(els.area.value);
+const areaSqft = currentUnit === "m2" ? (areaRaw * SQFT_PER_M2) : areaRaw;
 
     return {
       bedrooms,
@@ -868,18 +906,20 @@ const SQFT_PER_M2 = 10.7639;
 
   // ========= PRICING ALGORITHM =========
   function baseHoursByArea(areaSqft) {
-    const a = Math.max(1, areaSqft);
+  const a = Math.max(1, areaSqft);
 
-    if (a <= 999) return 4.75;
-    if (a <= 1499) return 5.00;
-    if (a <= 1999) return 5.00; // your benchmark
-    if (a <= 2499) return 6.00;
-    if (a <= 2999) return 6.25;
-    if (a <= 3499) return 8.25;
+  if (a <= 999) return 4.75;
+  if (a <= 1499) return 5.00;
+  if (a <= 1999) return 5.00; // benchmark
 
-    // 3500+ -> 8.25 + 0.75h per each additional FULL 500 sq ft (stepwise)
-    const extraBlocks = Math.max(0, Math.floor((a - 3500) / 500));
-    return 8.25 + 0.75 * extraBlocks;}
+  if (a <= 2499) return 6.00;
+  if (a <= 2999) return 7.75; // adjusted to match 10h examples for 2500–3000 layouts
+  if (a <= 3499) return 9.25;
+
+  // 3500+ -> 9.25 + 0.75h per each additional FULL 500 sq ft (stepwise)
+  const extraBlocks = Math.max(0, Math.floor((a - 3500) / 500));
+  return 9.25 + 0.75 * extraBlocks;
+}
 
   function normsByArea(areaSqft) {
     const a = Math.max(1, areaSqft);
@@ -903,7 +943,7 @@ const SQFT_PER_M2 = 10.7639;
     const extraBasement = Math.max(0, inputs.basements - 1);
 hours += extraKitchens * 0.75;
     hours += extraDining * 0.25;
-    hours += extraFloors * 0.35;
+    hours += extraFloors * 0.75;
     hours += extraBasement * 0.90;
 
     // Bedrooms / bathrooms: only above norm for area (soft correction)
@@ -923,40 +963,48 @@ hours += extraKitchens * 0.75;
     return billable;
   }
 
-  function computePriceRange(billableHours) {
-    const base = billableHours * PRICING.hourlyRate;
-    const minPrice = fmtMoney(base);
-    const maxPrice = fmtMoney(base * PRICING.maxMultiplier);
-    return { minPrice, maxPrice };
-  }
+  function computePrice(billableHours) {
+  // Single-price estimate (no range). Final price уточнюється after confirmation call.
+  return Math.round(billableHours * PRICING.hourlyRate);
+}
 
   function renderEstimate() {
-    const inputs = getInputs();
-    const billable = computeBillableHoursDeep(inputs);
-    const onSite = billable + PRICING.freeHours;
-    const { minPrice, maxPrice } = computePriceRange(billable);
+  const inputs = getInputs();
+  const billable = computeBillableHoursDeep(inputs);
+  const onSite = billable + PRICING.freeHours;
+  const price = computePrice(billable);
+  const specialists = getSpecialists(billable);
 
-    lastEstimate = {
-      ...inputs,
-      billable,
-      onSite,
-      minPrice,
-      maxPrice,
-    };
-
-    // Main estimate card (visible right after "Calculate")
-    if (els.priceText) {
-      els.priceText.textContent = `$${minPrice}–$${maxPrice}`;
-    }
-
-    const billableB = els.billableTime ? els.billableTime.querySelector("b") : null;
-    if (billableB) billableB.textContent = `${fmtHours(billable)} hrs`;
-
-    const onsiteB = els.onsiteTime ? els.onsiteTime.querySelector("b") : null;
-    if (onsiteB) onsiteB.textContent = `${fmtHours(onSite)} hrs (+30 min FREE)`;
+  lastEstimate = {
+    ...inputs,
+    // legacy keys (used by message/webhook)
+    billable,
+    onSite,
+    minPrice: price,
+    maxPrice: price,
+    // normalized keys
+    billable_hours: billable,
+    on_site_hours: onSite,
+    estimated_price: price,
+    specialists
   };
+
+  if (els.priceText) els.priceText.textContent = `$${price}`;
+  if (els.priceSingleText) els.priceSingleText.textContent = `$${price}`;
+
+  if (els.specialistsText) {
+    const per = fmtPerSpecialist(billable, specialists);
+    els.specialistsText.textContent = specialists === 1 ? `1 specialist` : `2 specialists (${per})`;
+  }
+
+  const billableB = els.billableHoursText ? els.billableHoursText.querySelector("b") : null;
+  if (billableB) billableB.textContent = `${fmtHours(billable)} hrs`;
+
+  const onsiteB = els.onSiteHoursText ? els.onSiteHoursText.querySelector("b") : null;
+  if (onsiteB) onsiteB.textContent = `${fmtHours(onSite)} hrs (+30 min FREE)`;
+};
   // ========= BOOKING MESSAGE =========
-  function buildBookingMessage() {
+    function buildBookingMessage() {
     // Ensure we have a fresh estimate
     renderEstimate();
     const e = lastEstimate;
@@ -965,7 +1013,9 @@ hours += extraKitchens * 0.75;
       ? `Area: ${Math.round(e.areaRaw)} m²`
       : `Area: ${Math.round(e.areaRaw)} sq ft`;
 
-    // IMPORTANT: no "(minimum $195)" here. Only show the range.
+    const specialists = getSpecialists(e.billable);
+    const perSpecialist = fmtPerSpecialist(e.billable, specialists);
+
     const msg =
 `Hi! I'd like to book a Deep Cleaning.
 
@@ -977,8 +1027,9 @@ Floors: ${e.floors}
 Dining rooms: ${e.diningRooms ?? e.dining_rooms ?? 0}
 Basement: ${e.basements}
 ${areaLine}
-Estimated price: $${e.minPrice}–$${e.maxPrice}
+Estimated price: $${e.minPrice}
 Billable time: ${fmtHours(e.billable)} hrs
+Specialists: ${specialists} (${perSpecialist})
 On-site time: ${fmtHours(e.onSite)} hrs (+30 min FREE)
 
 Name: ${els.bName?.value || ""}
@@ -1281,7 +1332,7 @@ renderEstimate();
         <div class="actions">
           <a class="contactBtn yellow" href="https://ig.me/m/northstarclean17" target="_blank" rel="noopener">Write on Instagram</a>
           <a class="contactBtn dark" href="https://m.me/Northstarclean17" target="_blank" rel="noopener">Write on Facebook</a>
-          <a class="contactBtn" style="background:#fff;border:1px solid rgba(18,18,18,.16);color:#111" href="tel:+16476973002">Call 647-697-3002</a>
+          <a class="contactBtn callBtn" href="tel:+16476973002">Call 647-697-3002</a>
         </div>
 
         <div class="small" style="margin-top:10px">
