@@ -682,8 +682,10 @@ function normalizeEstimateForWebhook(e) {
 
   const billable = (e.billable_hours ?? e.billable ?? 0);
   const onSite = (e.on_site_hours ?? e.onSite ?? 0);
-  const minPrice = (e.min_price ?? e.minPrice ?? 0);
-  const maxPrice = (e.max_price ?? e.maxPrice ?? 0);
+
+  // We now use a single-price estimate. Keep min/max for backward compatibility.
+  const price = (e.estimated_price ?? e.price ?? e.min_price ?? e.minPrice ?? 0);
+  const specialists = (e.specialists ?? 0);
 
   return {
     bedrooms: toNum(e.bedrooms),
@@ -694,10 +696,17 @@ function normalizeEstimateForWebhook(e) {
     basements: toNum(basements),
     area: Math.round(areaSqft),
     unit: "sqft",
+
+    // Main fields used in the sheet
+    estimated_price: toNum(price),
+    billable_time: toNum(billable),
+    specialists: toNum(specialists),
+
+    // Keep legacy columns too (some sheets already have them)
     billable_hours: toNum(billable),
     on_site_hours: toNum(onSite),
-    min_price: toNum(minPrice),
-    max_price: toNum(maxPrice),
+    min_price: toNum(price),
+    max_price: toNum(price),
   };
 }
 
