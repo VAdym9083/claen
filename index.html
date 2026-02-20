@@ -946,14 +946,14 @@ Thank you!`;
 
   function validateBookingBasics() {
     const missing = [];
-    const name = (els.name?.value || "").trim();
-    const phone = (els.phone?.value || "").trim();
+    const name = (els.bName?.value || "").trim();
+    const phone = (els.bPhone?.value || "").trim();
     if (!name) missing.push("Name");
     if (!phone) missing.push("Phone");
     return missing;
   }
 
-  function updateConfirmContinueState() {
+function updateConfirmContinueState() {
     if (!els.confirmModal) return;
     const missing = validateBookingBasics();
 
@@ -1086,7 +1086,7 @@ async function openBookingFlow() {
   if (els.confirmCheckbox) els.confirmCheckbox.addEventListener("change", updateConfirmContinueState);
 
   // Keep validation live
-  [els.name, els.phone].forEach((el) => {
+  [els.bName, els.bPhone].forEach((el) => {
     if (!el) return;
     el.addEventListener("input", updateConfirmContinueState);
     el.addEventListener("change", updateConfirmContinueState);
