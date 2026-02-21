@@ -487,7 +487,7 @@ src="https://www.facebook.com/tr?id=882187051357907&ev=PageView&noscript=1"
             <span style="font-weight:900">Specialists on cleaning:</span>
             <span id="specialistsText" style="font-weight:900">—</span>
           </div>
-          <div class="muted" id="priceDuplicate" style="margin-top:8px">Estimated price: <b id="priceSingleText">—</b> (price will be уточнюється after confirmation call)</div>
+          <div class="muted" id="priceDuplicate" style="margin-top:8px">Estimated price: <b id="priceSingleText">—</b> (final price will be confirmed during the confirmation call)</div>
 
           <div class="timebox">
             <div class="pill" id="billableTime">Billable time: <b>—</b></div>
@@ -973,7 +973,7 @@ hours += extraKitchens * 0.75;
   }
 
   function computePrice(billableHours) {
-  // Single-price estimate (no range). Final price уточнюється after confirmation call.
+  // Single-price estimate (no range). Final price will be confirmed during the confirmation call.
   return Math.round(billableHours * PRICING.hourlyRate);
 }
 
