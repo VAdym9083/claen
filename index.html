@@ -551,7 +551,7 @@ src="https://www.facebook.com/tr?id=882187051357907&ev=PageView&noscript=1"
       <div class="row">
         <div>
           <label>Phone</label>
-          <input id="bPhone" type="tel" placeholder="Phone number" />
+          <input id="bPhone" type="tel" placeholder="Phone number" required />
         </div>
         <div>
           <label>Preferred dates/times</label>
@@ -1189,10 +1189,51 @@ async function openBookingFlow() {
 
   if (els.calcBtn) els.calcBtn.addEventListener("click", () => renderEstimate());
 
-  // Book button: copy + open popup (best for conversion)
-  if (els.bookBtn) els.bookBtn.addEventListener("click", (e) => {
+  // Book button: final step (copy + open popup), but require phone number
+  if (els.bookBtn) els.bookBtn.addEventListener("click", async (e) => {
     e.preventDefault();
-    openConfirmFlow();
+
+    if (!lastEstimate) {
+      const ok = recalcBeforeBooking();
+      if (!ok) return;
+    }
+
+    const phoneValue = (els.bPhone?.value || "").trim();
+    if (!phoneValue) {
+      alert("Please enter your phone number before booking.");
+      if (els.bPhone) {
+        try { els.bPhone.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (_) {}
+        els.bPhone.focus();
+      }
+      return;
+    }
+
+    // Save the lead before user jumps to messenger apps
+    try {
+      const bookingMsg = buildBookingMessage();
+      const payload = {
+        ts: new Date().toISOString(),
+        page_url: window.location.href,
+        user_agent: navigator.userAgent,
+        utm: getUTM(),
+        estimate: normalizeEstimateForWebhook(lastEstimate),
+        booking: {
+          name: (els.bName?.value || "").trim(),
+          phone: phoneValue,
+          address: (els.bAddress?.value || "").trim(),
+          email: (els.bEmail?.value || "").trim(),
+          preferred_dates_times: (els.bPreferred?.value || "").trim(),
+          pay_cash: (els.bCash?.value || "").trim(),
+          pets: (els.bPets?.value || "").trim(),
+          notes: (els.bNotes?.value || "").trim()
+        },
+        message: bookingMsg
+      };
+      sendLeadToWebhook(payload);
+      try { if (window.fbq) fbq('track', 'Lead'); } catch (_) {}
+    } catch (_) {}
+
+    await openBookingFlow();
   });
 
   // Booking modal controls
